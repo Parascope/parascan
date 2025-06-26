@@ -1,0 +1,121 @@
+# Соответствия языков к пакетным менеджерам и их файлам зависимостей
+# Где искать библиотеки для точного определения их использования
+
+languages:
+  python:
+    api:
+      check_url: "https://pypi.org/pypi/{package}/json"
+      delay_seconds: 0.5  # PyPI довольно лояльный к запросам
+    package_managers:
+      pip:
+        files:
+          - "requirements.txt"
+          - "requirements/*.txt"
+          - "dev-requirements.txt"
+          - "test-requirements.txt"
+
+      setuptools:
+        files:
+          - "setup.py"
+          - "setup.cfg"
+
+      poetry:
+        files:
+          - "pyproject.toml"
+
+      pipenv:
+        files:
+          - "Pipfile"
+
+      conda:
+        files:
+          - "conda.yml"
+          - "environment.yml"
+
+  nodejs:
+    api:
+      check_url: "https://registry.npmjs.org/{package}"
+      delay_seconds: 0.3  # npm registry довольно быстрый
+    package_managers:
+      npm:
+        files:
+          - "package.json"
+
+      yarn:
+        files:
+          - "package.json"
+          - "yarn.lock"
+
+      pnpm:
+        files:
+          - "package.json"
+          - "pnpm-lock.yaml"
+
+  java:
+    api:
+      check_url: "https://repo1.maven.org/maven2/{package}/maven-metadata.xml"
+      delay_seconds: 1.0  # Maven Central довольно строгий
+    package_managers:
+      maven:
+        files:
+          - "pom.xml"
+
+      gradle:
+        files:
+          - "build.gradle"
+          - "build.gradle.kts"
+          - "settings.gradle"
+          - "gradle.properties"
+
+  dotnet:
+    api:
+      check_url: "https://api.nuget.org/v3-flatcontainer/{package}/index.json"
+      delay_seconds: 0.5  # NuGet API довольно лояльный
+    package_managers:
+      nuget:
+        files:
+          - "*.csproj"
+          - "*.fsproj"
+          - "*.vbproj"
+          - "packages.config"
+
+      dotnet_core:
+        files:
+          - "project.json"
+          - "global.json"
+          - "Directory.Build.props"
+
+  go:
+    api:
+      check_url: "https://proxy.golang.org/{package}/@latest"
+      delay_seconds: 0.3  # Go proxy довольно быстрый
+    package_managers:
+      go_modules:
+        files:
+          - "go.mod"
+
+      dep:
+        files:
+          - "Gopkg.toml"
+
+  php:
+    api:
+      check_url: "https://repo.packagist.org/p2/{package}.json"
+      delay_seconds: 0.5  # Packagist довольно лояльный
+    package_managers:
+      composer:
+        files:
+          - "composer.json"
+
+  ruby:
+    api:
+      check_url: "https://rubygems.org/api/v1/gems/{package}.json"
+      delay_seconds: 0.5  # RubyGems довольно лояльный
+    package_managers:
+      bundler:
+        files:
+          - "Gemfile"
+
+      gemspec:
+        files:
+          - "*.gemspec"
