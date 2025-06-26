@@ -5,3 +5,6 @@ AGENTS.md
 .cursor/rules/agents-instruction.mdc
 sitedog.html
 .cursor
+sitedog
+data/services/*
+.DS_Store

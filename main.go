@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"embed"
 	"encoding/base64"
 	"encoding/json"
 	"flag"
@@ -23,6 +24,12 @@ import (
 	"github.com/go-shiori/obelisk"
 	"gopkg.in/yaml.v2"
 )
+
+//go:embed data/stack-dependency-files.yml
+var stackDependencyData []byte
+
+//go:embed data/services/*.yml
+var servicesFS embed.FS
 
 const (
 	defaultConfigPath  = "./sitedog.yml"
@@ -56,6 +63,8 @@ func main() {
 		handlePush()
 	case "render":
 		handleRender()
+	case "sniff":
+		handleSniff()
 	case "version":
 		fmt.Println("sitedog version", Version)
 	case "help":
@@ -74,6 +83,7 @@ Commands:
   live    Start live server with preview
   push    Push configuration to cloud
   render  Render template to HTML
+  sniff   Detect technology stack and analyze dependencies
   version Print version
   help    Show this help message
 
@@ -95,6 +105,9 @@ Options for render:
   --config PATH    Path to config file (default: ./sitedog.yml)
   --output PATH    Path to output HTML file (default: sitedog.html)
 
+Options for sniff:
+  --path PATH      Path to analyze (default: current directory)
+
 Examples:
   sitedog init --config my-config.yml
   sitedog live --port 3030
@@ -104,7 +117,8 @@ Examples:
   sitedog push --remote https://api.example2.com --title my-project
   sitedog push --namespace my-group --title my-project
   SITEDOG_TOKEN=your_token sitedog push --title my-project
-  sitedog render --output index.html`)
+  sitedog render --output index.html
+  sitedog sniff --path ./my-project`)
 }
 
 func handleInit() {
@@ -583,4 +597,370 @@ func getFaviconCache(config []byte) []byte {
 	}
 
 	return jsonData
+}
+
+// Data structures for working with dependency analysis
+
+type StackDependencyFiles struct {
+	Languages map[string]Language `yaml:"languages"`
+}
+
+type Language struct {
+	API             API                           `yaml:"api"`
+	PackageManagers map[string]PackageManager `yaml:"package_managers"`
+}
+
+type API struct {
+	CheckURL     string  `yaml:"check_url"`
+	DelaySeconds float64 `yaml:"delay_seconds"`
+}
+
+type PackageManager struct {
+	Files []string `yaml:"files"`
+}
+
+type ServiceData struct {
+	Name   string                    `yaml:"name"`
+	URL    string                    `yaml:"url"`
+	Stacks map[string][]string `yaml:"stacks"`
+}
+
+type DetectionResult struct {
+	Language     string
+	Files        []string
+	Services     []ServiceDetection
+}
+
+type ServiceDetection struct {
+	Name     string
+	Language string
+	Packages []PackageInfo
+}
+
+type PackageInfo struct {
+	Name string
+	File string
+}
+
+func handleSniff() {
+	sniffFlags := flag.NewFlagSet("sniff", flag.ExitOnError)
+	projectPath := sniffFlags.String("path", ".", "Path to analyze")
+	sniffFlags.Parse(os.Args[2:])
+
+	displayPath := *projectPath
+	if *projectPath == "." {
+		if cwd, err := os.Getwd(); err == nil {
+			displayPath = "current directory (" + filepath.Base(cwd) + ")"
+		} else {
+			displayPath = "current directory"
+		}
+	}
+	fmt.Printf("🔍 Analyzing project in %s...\n\n", displayPath)
+
+	// Load stack dependency files data
+	stackData, err := loadStackDependencyFiles()
+	if err != nil {
+		fmt.Printf("❌ Error loading stack data: %v\n", err)
+		return
+	}
+
+	// Load services data
+	servicesData, err := loadServicesData()
+	if err != nil {
+		fmt.Printf("❌ Error loading services data: %v\n", err)
+		return
+	}
+
+	// Detect project technologies
+	detectedLanguages := detectProjectLanguages(*projectPath, stackData)
+	if len(detectedLanguages) == 0 {
+		fmt.Println("❌ Could not detect project technologies")
+		return
+	}
+
+	if len(detectedLanguages) == 1 {
+		fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
+	} else {
+		var titleLanguages []string
+		for _, lang := range detectedLanguages {
+			titleLanguages = append(titleLanguages, strings.Title(lang))
+		}
+		fmt.Printf("👃 Smells like a mix of %s!\n", strings.Join(titleLanguages, ", "))
+	}
+	fmt.Println()
+
+	// Analyze dependency files
+	results := analyzeProjectDependencies(*projectPath, detectedLanguages, stackData, servicesData)
+
+	if len(results) == 0 {
+		fmt.Println("❌ No dependency files found")
+		return
+	}
+
+	// Display results
+	displayResults(results)
+
+	// Check if sitedog.yml exists, if not - create it
+	configPath := filepath.Join(*projectPath, "sitedog.yml")
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		createConfigFromDetection(configPath, detectedLanguages, results)
+	}
+}
+
+func loadStackDependencyFiles() (*StackDependencyFiles, error) {
+	var stackData StackDependencyFiles
+	err := yaml.Unmarshal(stackDependencyData, &stackData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &stackData, nil
+}
+
+func loadServicesData() (map[string]*ServiceData, error) {
+	servicesData := make(map[string]*ServiceData)
+
+	entries, err := servicesFS.ReadDir("data/services")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".yml") {
+			data, err := servicesFS.ReadFile("data/services/" + entry.Name())
+			if err != nil {
+				continue
+			}
+
+			var service ServiceData
+			err = yaml.Unmarshal(data, &service)
+			if err != nil {
+				continue
+			}
+
+			serviceName := entry.Name()[:len(entry.Name())-4] // remove .yml extension
+			servicesData[serviceName] = &service
+		}
+	}
+
+	return servicesData, nil
+}
+
+func detectProjectLanguages(projectPath string, stackData *StackDependencyFiles) []string {
+	var technologies []string
+
+	for tech, lang := range stackData.Languages {
+		found := false
+		for _, pm := range lang.PackageManagers {
+			for _, filePattern := range pm.Files {
+				if hasMatchingFiles(projectPath, filePattern) {
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if found {
+			technologies = append(technologies, tech)
+		}
+	}
+
+	return technologies
+}
+
+func hasMatchingFiles(dir, pattern string) bool {
+	// If pattern contains subdirectories (e.g. "requirements/*.txt")
+	if strings.Contains(pattern, "/") {
+		matches, err := filepath.Glob(filepath.Join(dir, pattern))
+		return err == nil && len(matches) > 0
+	}
+
+	// If pattern contains wildcards (e.g. "*.txt")
+	if strings.Contains(pattern, "*") {
+		matches, err := filepath.Glob(filepath.Join(dir, pattern))
+		return err == nil && len(matches) > 0
+	}
+
+	// Regular file
+	_, err := os.Stat(filepath.Join(dir, pattern))
+	return err == nil
+}
+
+func analyzeProjectDependencies(projectPath string, languages []string, stackData *StackDependencyFiles, servicesData map[string]*ServiceData) []DetectionResult {
+	var results []DetectionResult
+
+	for _, language := range languages {
+		langData := stackData.Languages[language]
+		foundFilesMap := make(map[string]bool)
+		servicesMap := make(map[string]*ServiceDetection)
+
+		// Collect all dependency files for this language (without duplicates)
+		for _, packageManager := range langData.PackageManagers {
+			for _, filePattern := range packageManager.Files {
+				matches, err := filepath.Glob(filepath.Join(projectPath, filePattern))
+				if err != nil {
+					continue
+				}
+				for _, match := range matches {
+					foundFilesMap[match] = true
+				}
+			}
+		}
+
+		// Convert map to slice
+		var foundFiles []string
+		for file := range foundFilesMap {
+			foundFiles = append(foundFiles, file)
+		}
+
+		// Analyze found files only once each
+		analyzedFiles := make(map[string]bool)
+		for _, file := range foundFiles {
+			if !analyzedFiles[file] {
+				analyzedFiles[file] = true
+				fileServices := analyzeFile(file, language, servicesData)
+				for _, service := range fileServices {
+					if existing, exists := servicesMap[service.Name]; exists {
+						// Merge packages, avoiding duplicates
+						packageMap := make(map[string]PackageInfo)
+						for _, pkg := range existing.Packages {
+							packageMap[pkg.Name] = pkg
+						}
+						for _, pkg := range service.Packages {
+							packageMap[pkg.Name] = pkg
+						}
+
+						var mergedPackages []PackageInfo
+						for _, pkg := range packageMap {
+							mergedPackages = append(mergedPackages, pkg)
+						}
+						existing.Packages = mergedPackages
+					} else {
+						servicesMap[service.Name] = &service
+					}
+				}
+			}
+		}
+
+		// Convert map to slice
+		var services []ServiceDetection
+		for _, service := range servicesMap {
+			services = append(services, *service)
+		}
+
+		if len(foundFiles) > 0 || len(services) > 0 {
+			result := DetectionResult{
+				Language: language,
+				Files:    foundFiles,
+				Services: services,
+			}
+			results = append(results, result)
+		}
+	}
+
+	return results
+}
+
+func analyzeFile(filePath, language string, servicesData map[string]*ServiceData) []ServiceDetection {
+	var detections []ServiceDetection
+
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return detections
+	}
+
+	fileName := filepath.Base(filePath)
+
+	for serviceName, serviceData := range servicesData {
+		if packages, exists := serviceData.Stacks[language]; exists {
+			var foundPackages []PackageInfo
+
+			for _, pkg := range packages {
+				if isPackageInFile(string(content), fileName, pkg, language) {
+					foundPackages = append(foundPackages, PackageInfo{
+						Name: pkg,
+						File: filePath,
+					})
+				}
+			}
+
+			if len(foundPackages) > 0 {
+				detection := ServiceDetection{
+					Name:     serviceName,
+					Language: language,
+					Packages: foundPackages,
+				}
+				detections = append(detections, detection)
+			}
+		}
+	}
+
+	return detections
+}
+
+// Simple and efficient package search
+func isPackageInFile(content, fileName, packageName, language string) bool {
+	// Simply search for the package as is - names are unique
+	return strings.Contains(content, packageName)
+}
+
+// Create sitedog.yml configuration based on detected technologies and services
+func createConfigFromDetection(configPath string, languages []string, results []DetectionResult) {
+	var config strings.Builder
+
+	// Get project name from directory
+	projectDir := filepath.Dir(configPath)
+	projectName := filepath.Base(projectDir)
+	if projectDir == "." {
+		if cwd, err := os.Getwd(); err == nil {
+			projectName = filepath.Base(cwd)
+		}
+	}
+
+	// Add project name as root key
+	config.WriteString(fmt.Sprintf("%s:\n", projectName))
+
+	// Add detected services
+	allServices := make(map[string]bool)
+	for _, result := range results {
+		for _, service := range result.Services {
+			allServices[service.Name] = true
+		}
+	}
+
+	if len(allServices) > 0 {
+		for serviceName := range allServices {
+			config.WriteString(fmt.Sprintf("  %s: %s\n", strings.ToLower(serviceName), serviceName))
+		}
+	}
+
+	if err := ioutil.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
+		fmt.Printf("⚠️  Could not create %s: %v\n", configPath, err)
+		return
+	}
+
+	fmt.Printf("✨ Created %s with detected technologies and services\n", configPath)
+}
+
+func displayResults(results []DetectionResult) {
+	// Collect all unique services across all languages
+	allServices := make(map[string]bool)
+
+	for _, result := range results {
+		for _, service := range result.Services {
+			allServices[service.Name] = true
+		}
+	}
+
+	if len(allServices) == 0 {
+		fmt.Println("🔍 No services detected")
+		return
+	}
+
+	fmt.Printf("🔍 Detected %d service(s):\n", len(allServices))
+	for serviceName := range allServices {
+		fmt.Printf("  🔗 %s\n", strings.Title(serviceName))
+	}
 }
