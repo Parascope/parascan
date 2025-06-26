@@ -13,7 +13,7 @@ help:
 	@echo "  uninstall           - Uninstall sitedog"
 	@echo "  reinstall           - Uninstall and install sitedog"
 
-push:
+push-gist:
 	rm -rf sitedog_gist
 	git clone git@gist.github.com:fe278d331980a1ce09c3d946bbf0b83b.git --depth 1 sitedog_gist
 	rm -rf sitedog_gist/*
@@ -28,9 +28,12 @@ push:
 	fi
 
 build:
+	go build -o sitedog main.go
+
+docker-build:
 	docker run --rm -v $(PWD):/app -w /app golang:1.20-alpine sh -c "./scripts/build.sh"
 
-push!: build push
+push!: build push-gist
 
 bump-version:
 	@if [ -z "$(v)" ]; then \
@@ -79,3 +82,5 @@ uninstall:
 reinstall: uninstall install
 
 .DEFAULT_GOAL := help
+
+include make-git.mk
