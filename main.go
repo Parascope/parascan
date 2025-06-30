@@ -31,7 +31,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io" // Change to your actual API URL
-	Version            = "v0.3.3"
+	Version            = "v0.4.0"
 	exampleConfig      = `# Describe your project with a free key-value format, think simple.
 #
 # Random sample:
@@ -627,7 +627,7 @@ func handleLogout() {
 	}
 
 	authFile := filepath.Join(usr.HomeDir, authFilePath)
-	
+
 	// Check if auth file exists
 	if _, err := os.Stat(authFile); err != nil {
 		fmt.Println("No authentication token found. You are already logged out.")
