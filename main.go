@@ -56,6 +56,8 @@ func main() {
 		handlePush()
 	case "render":
 		handleRender()
+	case "logout":
+		handleLogout()
 	case "version":
 		fmt.Println("sitedog version", Version)
 	case "help":
@@ -74,6 +76,7 @@ Commands:
   live    Start live server with preview
   push    Push configuration to cloud
   render  Render template to HTML
+  logout  Remove authentication token
   version Print version
   help    Show this help message
 
@@ -104,7 +107,8 @@ Examples:
   sitedog push --remote https://api.example2.com --title my-project
   sitedog push --namespace my-group --title my-project
   SITEDOG_TOKEN=your_token sitedog push --title my-project
-  sitedog render --output index.html`)
+  sitedog render --output index.html
+  sitedog logout`)
 }
 
 func handleInit() {
@@ -612,4 +616,29 @@ func getFaviconCache(config []byte) []byte {
 	}
 
 	return jsonData
+}
+
+func handleLogout() {
+	// Get current user to find auth file path
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println("Error getting current user:", err)
+		os.Exit(1)
+	}
+
+	authFile := filepath.Join(usr.HomeDir, authFilePath)
+	
+	// Check if auth file exists
+	if _, err := os.Stat(authFile); err != nil {
+		fmt.Println("No authentication token found. You are already logged out.")
+		return
+	}
+
+	// Remove the auth file
+	if err := os.Remove(authFile); err != nil {
+		fmt.Println("Error removing authentication token:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Successfully logged out. Authentication token removed.")
 }
