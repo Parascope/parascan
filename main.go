@@ -23,6 +23,8 @@ import (
 
 	"github.com/go-shiori/obelisk"
 	"gopkg.in/yaml.v2"
+
+	"sitedog/detectors"
 )
 
 //go:embed data/stack-dependency-files.yml
@@ -704,39 +706,61 @@ func handleSniff() {
 		return
 	}
 
-	// Detect project technologies
-	detectedLanguages := detectProjectLanguages(*projectPath, stackData)
-	if len(detectedLanguages) == 0 {
-		fmt.Println("❌ Could not detect project technologies")
-		return
+	// Create detectors
+	var detectorsList []detectors.Detector
+
+	// Create adapter for services dependencies
+	adapter := &ServicesDependenciesAdapter{
+		stackData:    stackData,
+		servicesData: servicesData,
 	}
 
-	if len(detectedLanguages) == 1 {
-		fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
-	} else {
-		var titleLanguages []string
-		for _, lang := range detectedLanguages {
-			titleLanguages = append(titleLanguages, strings.Title(lang))
+	// Add Services detector
+	servicesDetector := detectors.NewServicesDetector(adapter)
+	detectorsList = append(detectorsList, servicesDetector)
+
+	// Add Git detector
+	gitDetector := &detectors.GitRepositoryDetector{}
+	detectorsList = append(detectorsList, gitDetector)
+
+	// Run all detectors and collect results
+	allResults := make(map[string]string)
+
+		for _, detector := range detectorsList {
+		results, err := detector.Detect(*projectPath)
+		if err != nil {
+			fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			continue
 		}
-		fmt.Printf("👃 Smells like a mix of %s!\n", strings.Join(titleLanguages, ", "))
+
+		// Merge results
+		for key, value := range results {
+			allResults[key] = value
+		}
 	}
-	fmt.Println()
 
-	// Analyze dependency files
-	results := analyzeProjectDependencies(*projectPath, detectedLanguages, stackData, servicesData)
-
-	if len(results) == 0 {
-		fmt.Println("❌ No dependency files found")
-		return
+	// Show language detection for user feedback (keep existing behavior)
+	detectedLanguages := detectProjectLanguages(*projectPath, stackData)
+	if len(detectedLanguages) > 0 {
+		if len(detectedLanguages) == 1 {
+			fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
+		} else {
+			var titleLanguages []string
+			for _, lang := range detectedLanguages {
+				titleLanguages = append(titleLanguages, strings.Title(lang))
+			}
+			fmt.Printf("👃 Smells like a mix of %s!\n", strings.Join(titleLanguages, ", "))
+		}
+		fmt.Println()
 	}
 
 	// Display results
-	displayResults(results, servicesData)
+	displayDetectorResults(allResults)
 
-	// Check if sitedog.yml exists, if not - create it
+	// Create configuration
 	configPath := filepath.Join(*projectPath, "sitedog.yml")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		createConfigFromDetection(configPath, detectedLanguages, results, servicesData)
+		createConfigFromDetectorResults(configPath, allResults)
 	}
 }
 
@@ -1038,4 +1062,100 @@ func handleLogout() {
 	}
 
 	fmt.Println("Successfully logged out. Authentication token removed.")
+}
+
+func displayDetectorResults(results map[string]string) {
+	if len(results) == 0 {
+		fmt.Println("🔍 No services or repositories detected")
+		return
+	}
+
+	serviceCount := len(results)
+	// Don't count 'repo' as a service
+	if _, hasRepo := results["repo"]; hasRepo {
+		serviceCount--
+	}
+
+	if serviceCount > 0 {
+		fmt.Printf("🔍 Detected %d service(s):\n", serviceCount)
+		for key, value := range results {
+			if key != "repo" { // Skip repo for services display
+				fmt.Printf("  🔗 %s → %s\n", key, value)
+			}
+		}
+	}
+
+	if repo, hasRepo := results["repo"]; hasRepo {
+		fmt.Printf("📁 Repository: %s\n", repo)
+	}
+}
+
+func createConfigFromDetectorResults(configPath string, results map[string]string) {
+	var config strings.Builder
+
+	// Get project name from directory
+	projectDir := filepath.Dir(configPath)
+	projectName := filepath.Base(projectDir)
+	if projectDir == "." {
+		if cwd, err := os.Getwd(); err == nil {
+			projectName = filepath.Base(cwd)
+		}
+	}
+
+	// Add project name as root key
+	config.WriteString(fmt.Sprintf("%s:\n", projectName))
+
+	// Add all detected key-value pairs
+	for key, value := range results {
+		config.WriteString(fmt.Sprintf("  %s: %s\n", key, value))
+	}
+
+	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
+		fmt.Printf("⚠️  Could not create %s: %v\n", configPath, err)
+		return
+	}
+
+	fmt.Printf("\n✨ Created %s with detected services\n", configPath)
+}
+
+// ServicesDependenciesAdapter adapts existing functions to detectors interface
+type ServicesDependenciesAdapter struct {
+	stackData    *StackDependencyFiles
+	servicesData map[string]*ServiceData
+}
+
+func (a *ServicesDependenciesAdapter) DetectProjectLanguages(projectPath string) []string {
+	return detectProjectLanguages(projectPath, a.stackData)
+}
+
+func (a *ServicesDependenciesAdapter) AnalyzeProjectDependencies(projectPath string, languages []string) []detectors.ProjectResult {
+	results := analyzeProjectDependencies(projectPath, languages, a.stackData, a.servicesData)
+
+	// Convert to detectors format
+	var detectorResults []detectors.ProjectResult
+	for _, result := range results {
+		var services []detectors.ServiceResult
+		for _, service := range result.Services {
+			services = append(services, detectors.ServiceResult{
+				Name: service.Name,
+			})
+		}
+		detectorResults = append(detectorResults, detectors.ProjectResult{
+			Language: result.Language,
+			Services: services,
+		})
+	}
+
+	return detectorResults
+}
+
+func (a *ServicesDependenciesAdapter) GetServicesData() map[string]*detectors.ServiceInfo {
+	result := make(map[string]*detectors.ServiceInfo)
+	for key, service := range a.servicesData {
+		result[key] = &detectors.ServiceInfo{
+			Name: service.Name,
+			URL:  service.URL,
+		}
+	}
+	return result
 }
