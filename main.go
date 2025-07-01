@@ -1237,13 +1237,54 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		}
 	}
 
-	if configExists {
+		if configExists {
 		if len(newData) == 0 {
 			fmt.Printf("\n✨ Config %s is up to date, no new services detected\n", configPath)
 			return
 		}
 
-		// Create YAML for new entries only (without root key)
+		// Read existing content and split by root keys
+		content, err := os.ReadFile(configPath)
+		if err != nil {
+			fmt.Printf("⚠️  Could not read %s: %v\n", configPath, err)
+			return
+		}
+
+		lines := strings.Split(string(content), "\n")
+		var sections []string
+		var currentSection []string
+		var foundProjectSection = false
+		var projectSectionIndex = -1
+
+		for _, line := range lines {
+			// Check if this is a root key (starts without indentation and ends with :)
+			if len(line) > 0 && line[0] != ' ' && line[0] != '\t' && strings.HasSuffix(strings.TrimSpace(line), ":") {
+				// Save previous section if exists
+				if len(currentSection) > 0 {
+					sections = append(sections, strings.Join(currentSection, "\n"))
+				}
+
+				// Check if this is our project section
+				rootKey := strings.TrimSuffix(strings.TrimSpace(line), ":")
+				if rootKey == projectName {
+					foundProjectSection = true
+					projectSectionIndex = len(sections)
+				}
+
+				// Start new section
+				currentSection = []string{line}
+			} else {
+				// Add line to current section
+				currentSection = append(currentSection, line)
+			}
+		}
+
+		// Add last section
+		if len(currentSection) > 0 {
+			sections = append(sections, strings.Join(currentSection, "\n"))
+		}
+
+		// Create YAML for new entries
 		newYaml, err := yaml.Marshal(newData)
 		if err != nil {
 			fmt.Printf("⚠️  Could not marshal new data to YAML: %v\n", err)
@@ -1258,16 +1299,20 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			}
 		}
 
-		// Append to existing file
-		file, err := os.OpenFile(configPath, os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			fmt.Printf("⚠️  Could not open %s for appending: %v\n", configPath, err)
-			return
+		if foundProjectSection {
+			// Add to existing project section
+			sections[projectSectionIndex] = strings.TrimSuffix(sections[projectSectionIndex], "\n") + "\n" + strings.TrimSuffix(indentedYaml, "\n")
+		} else {
+			// Create new project section
+			newSection := fmt.Sprintf("%s:\n%s", projectName, strings.TrimSuffix(indentedYaml, "\n"))
+			sections = append(sections, newSection)
 		}
-		defer file.Close()
 
-		if _, err := file.WriteString(indentedYaml); err != nil {
-			fmt.Printf("⚠️  Could not append to %s: %v\n", configPath, err)
+		// Join all sections back with empty lines between them
+		finalContent := strings.Join(sections, "\n\n") + "\n"
+
+		if err := os.WriteFile(configPath, []byte(finalContent), 0644); err != nil {
+			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
 			return
 		}
 
