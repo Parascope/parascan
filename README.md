@@ -38,8 +38,8 @@ inem.at:
 ## 🛠️ How-to
 
 1. Install the CLI (see below).
-2. Run `sitedog init` to create a basic sitedog.yml.
-3. Use `sitedog live` to preview your card locally while editing.
+2. Run `sitedog sniff` to detect your stack and create sitedog.yml.
+3. Use `sitedog serve` to preview your card locally while editing.
 4. Generate an HTML card with `sitedog render`.
 
 ---
@@ -53,53 +53,65 @@ curl -sL https://get.sitedog.io | sh
 
 ## 📦 Usage
 
-### 1. Create sitedog.yml
+### 1. Detect your stack and create sitedog.yml
 
 ```sh
-sitedog init [--config my-config.yml] # ./sitedog.yml by default
+sitedog sniff                          # detect stack and create sitedog.yml
+sitedog sniff ./my-project             # detect stack in directory and create config
 ```
-Alternativaly you can just create sitedog.yml manually.
 
 ### 2. Live card preview on localhost
 
 Useful when editing config.
 ```sh
-sitedog live [--port 3030] # http://localhost:8081 by default
+sitedog serve                    # serve current directory config
+sitedog serve ./my-project       # serve specific directory
+sitedog serve --port 3030        # serve on custom port
 ```
 
-<!-- ### 3. Add your config to cloud dashboard
-```sh
-sitedog push [--title another_config_title]
-``` -->
+### 3. Send configuration to cloud
 
-### 3. Render html file with card locally
 ```sh
-sitedog render [--output another_file.html] # ./sitedog.html by default
+sitedog push                     # push current config (interactive auth)
+SITEDOG_TOKEN=xxx sitedog push   # push with token (for CI/CD)
 ```
 
-### 4 CLI help
+**For CI/CD:** Set `SITEDOG_TOKEN` environment variable to avoid interactive authentication. Get your token at [app.sitedog.io/auth_device](https://app.sitedog.io/auth_device).
+
+### 4. Render html file with card locally
+```sh
+sitedog render                   # render to sitedog.html
+sitedog render --output my-card.html  # render to custom file
+```
+
+### 5. CLI help
 
 ```sh
 sitedog help
-Usage: sitedog <command>
+Usage: sitedog <command> <path(optional)>
 
 Commands:
-  init    Create sitedog.yml configuration file
-  live    Start live server with preview
-  render  Render template to HTML
-  version Print version
+  sniff   Detect your stack and create sitedog.yml
+  serve   Start live server with preview
+  push    Send configuration to cloud
+  render  Render HTML card
+
+  logout  Remove authentication token
+  version Show version
   help    Show this help message
 
-Options for init:
-  --config PATH    Path to config file (default: ./sitedog.yml)
-
-Options for live:
-  --config PATH    Path to config file (default: ./sitedog.yml)
+Options for serve:
   --port PORT      Port to run server on (default: 8081)
-```
 
-<!-- Options for push:
-  --config PATH    Path to config file (default: ./sitedog.yml) -->
+Options for render:
+  --output PATH    Path to output HTML file (default: sitedog.html)
+
+Examples:
+  sitedog sniff                          # detect stack and create sitedog.yml
+  sitedog sniff ./my-project             # detect stack in directory and create config
+
+  sitedog serve --port 3030
+```
 
 ## 🚀 Uninstallation
 
@@ -130,7 +142,15 @@ Even for such a small project there are already a lot of information that easily
 
 ### What's next?
 
-We believe that Sitedog should be a part of your workflow, not just a tool to show your config. Therefore it must be liteally at hands. Plans to make it happen:
+We believe that Sitedog should be a part of your workflow, not just a tool to show your config. Therefore it must be literally at hands. Current features and plans:
+
+**✅ Available now:**
+- Smart stack detection with `sitedog sniff` (detects languages, frameworks, services)
+- Live preview server for real-time config editing
+- Cloud sync for team collaboration
+- HTML card generation for static sites
+
+**🚀 Coming soon:**
 
 - [ ] VS Code extension
 - [ ] Chrome extension to augment GitLab/Github with sitedog cards

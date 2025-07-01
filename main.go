@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/go-shiori/obelisk"
+	"golang.org/x/term"
 	"gopkg.in/yaml.v2"
 
 	"sitedog/detectors"
@@ -44,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io" // Change to your actual API URL
-	Version = "v0.5.0"
+	Version = "v0.6.0"
 	exampleConfig      = `# Describe your project with a free key-value format, think simple.
 #
 # Random sample:
@@ -61,16 +62,14 @@ func main() {
 		return
 	}
 	switch os.Args[1] {
-	case "init":
-		handleInit()
-	case "live":
-		handleLive()
+	case "sniff":
+		handleSniff()
+	case "serve":
+		handleServe()
 	case "push":
 		handlePush()
 	case "render":
 		handleRender()
-	case "sniff":
-		handleSniff()
 	case "logout":
 		handleLogout()
 	case "version":
@@ -84,66 +83,32 @@ func main() {
 }
 
 func showHelp() {
-	fmt.Println(`Usage: sitedog <command>
+	fmt.Println(`Usage: sitedog <command> <path(optional)>
 
 Commands:
-  init    Create sitedog.yml configuration file
-  live    Start live server with preview
-  push    Push configuration to cloud
-  render  Render template to HTML
-  sniff   Detect technology stack and analyze dependencies
+  sniff   Detect your stack and create sitedog.yml
+  serve   Start live server with preview
+  push    Send configuration to cloud
+  render  Render HTML card
+
   logout  Remove authentication token
-  version Print version
+  version Show version
   help    Show this help message
 
-Options for init:
-  --config PATH    Path to config file (default: ./sitedog.yml)
-
-Options for live:
-  --config PATH    Path to config file (default: ./sitedog.yml)
+Options for serve:
   --port PORT      Port to run server on (default: 8081)
 
-Options for push:
-  --config PATH    Path to config file (default: ./sitedog.yml)
-  --title TITLE    Configuration title (default: current directory name)
-  --remote URL     Custom API base URL (e.g., localhost:3000, api.example.com)
-  --namespace NAMESPACE Namespace for the configuration (e.g., my-group)
-  SITEDOG_TOKEN    Environment variable for authentication token
-
 Options for render:
-  --config PATH    Path to config file (default: ./sitedog.yml)
   --output PATH    Path to output HTML file (default: sitedog.html)
 
-Options for sniff:
-  --path PATH      Path to analyze (default: current directory)
-
 Examples:
-  sitedog init --config my-config.yml
-  sitedog live --port 3030
-  sitedog push --title my-project
-  sitedog push --remote localhost:3000 --title my-project
-  sitedog push --remote api.example.com --title my-project
-  sitedog push --remote https://api.example2.com --title my-project
-  sitedog push --namespace my-group --title my-project
-  SITEDOG_TOKEN=your_token sitedog push --title my-project
-  sitedog render --output index.html
-  sitedog sniff --path ./my-project
-  sitedog logout`)
+  sitedog sniff                          # detect stack and create sitedog.yml
+  sitedog sniff ./my-project             # detect stack in directory and create config
+
+  sitedog serve --port 3030`)
 }
 
-func handleInit() {
-	configPath := flag.NewFlagSet("init", flag.ExitOnError)
-	configFile := configPath.String("config", defaultConfigPath, "Path to config file")
-	configPath.Parse(os.Args[2:])
-	if _, err := os.Stat(*configFile); err == nil {
-		fmt.Println("Error:", *configFile, "already exists")
-		os.Exit(1)
-	}
-	if err := ioutil.WriteFile(*configFile, []byte(exampleConfig), 0644); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Created", *configFile, "configuration file")
-}
+
 
 func startServer(configFile *string, port int) (*http.Server, string) {
 	// Handlers
@@ -192,18 +157,41 @@ func startServer(configFile *string, port int) (*http.Server, string) {
 	return server, addr
 }
 
-func handleLive() {
-	liveFlags := flag.NewFlagSet("live", flag.ExitOnError)
-	configFile := liveFlags.String("config", defaultConfigPath, "Path to config file")
-	port := liveFlags.Int("port", defaultPort, "Port to run server on")
-	liveFlags.Parse(os.Args[2:])
+func handleServe() {
+	// Parse arguments - path can be positional argument
+	var configFile string
+	var port int = defaultPort
 
-	if _, err := os.Stat(*configFile); err != nil {
-		fmt.Println("Error:", *configFile, "not found. Run 'sitedog init' first.")
+	// Parse remaining arguments for flags
+	args := os.Args[2:]
+
+	// Look for positional argument (path)
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		pathArg := args[0]
+		args = args[1:] // Remove from args to process flags
+
+		// Check if path is a file or directory
+		if strings.HasSuffix(pathArg, ".yml") || strings.HasSuffix(pathArg, ".yaml") {
+			configFile = pathArg
+		} else {
+			configFile = filepath.Join(pathArg, "sitedog.yml")
+		}
+	} else {
+		configFile = defaultConfigPath
+	}
+
+	// Parse remaining flags
+	serveFlags := flag.NewFlagSet("serve", flag.ExitOnError)
+	portFlag := serveFlags.Int("port", defaultPort, "Port to run server on")
+	serveFlags.Parse(args)
+	port = *portFlag
+
+	if _, err := os.Stat(configFile); err != nil {
+		fmt.Println("Error:", configFile, "not found. Run 'sitedog sniff' first.")
 		os.Exit(1)
 	}
 
-	server, addr := startServer(configFile, *port)
+	server, addr := startServer(&configFile, port)
 	url := "http://localhost" + addr
 
 	go func() {
@@ -314,6 +302,11 @@ func handlePush() {
 	fmt.Printf("Configuration '%s' pushed successfully to %s!\n", *configName, apiURL)
 }
 
+// isTerminalInteractive checks if we're running in an interactive terminal
+func isTerminalInteractive() bool {
+	return term.IsTerminal(int(os.Stdin.Fd()))
+}
+
 func getAuthToken(apiURL string) (string, error) {
 	// First check for environment variable
 	if token := os.Getenv("SITEDOG_TOKEN"); token != "" {
@@ -334,6 +327,11 @@ func getAuthToken(apiURL string) (string, error) {
 			return "", fmt.Errorf("error reading auth file: %v", err)
 		}
 		return strings.TrimSpace(string(token)), nil
+	}
+
+	// Check if we're in a non-interactive environment
+	if !isTerminalInteractive() {
+		return "", fmt.Errorf("authentication required but running in non-interactive mode.\nPlease set SITEDOG_TOKEN environment variable.\nGet your token at: %s/auth_device", apiURL)
 	}
 
 	// If not authenticated, start device authentication flow
@@ -682,12 +680,29 @@ type PackageInfo struct {
 }
 
 func handleSniff() {
-	sniffFlags := flag.NewFlagSet("sniff", flag.ExitOnError)
-	projectPath := sniffFlags.String("path", ".", "Path to analyze")
-	sniffFlags.Parse(os.Args[2:])
+	// Parse arguments - path can be positional argument
+	var projectPath, configPath string
+	if len(os.Args) >= 3 {
+		argPath := os.Args[2]
+		if strings.HasSuffix(argPath, ".yml") || strings.HasSuffix(argPath, ".yaml") {
+			// Argument is a config file path - analyze parent directory, save to specified file
+			configPath = argPath
+			projectPath = filepath.Dir(argPath)
+			if projectPath == "." {
+				projectPath = "."
+			}
+		} else {
+			// Argument is a directory path
+			projectPath = argPath
+			configPath = filepath.Join(projectPath, "sitedog.yml")
+		}
+	} else {
+		projectPath = "."
+		configPath = "sitedog.yml"
+	}
 
-	displayPath := *projectPath
-	if *projectPath == "." {
+	displayPath := projectPath
+	if projectPath == "." {
 		if cwd, err := os.Getwd(); err == nil {
 			displayPath = "current directory (" + filepath.Base(cwd) + ")"
 		} else {
@@ -745,7 +760,7 @@ func handleSniff() {
 	// Run phase 1 detectors
 	allResults := make(map[string]string)
 	ctx := &detectors.DetectionContext{
-		ProjectPath: *projectPath,
+		ProjectPath: projectPath,
 		Results:     make(map[string]string),
 	}
 
@@ -778,7 +793,7 @@ func handleSniff() {
 	}
 
 	// Show language detection for user feedback (keep existing behavior)
-	detectedLanguages := detectProjectLanguages(*projectPath, stackData)
+	detectedLanguages := detectProjectLanguages(projectPath, stackData)
 	if len(detectedLanguages) > 0 {
 		if len(detectedLanguages) == 1 {
 			fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
@@ -795,11 +810,8 @@ func handleSniff() {
 	// Display results
 	displayDetectorResults(allResults)
 
-	// Create configuration
-	configPath := filepath.Join(*projectPath, "sitedog.yml")
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		createConfigFromDetectorResults(configPath, allResults)
-	}
+	// Create or update configuration
+	createConfigFromDetectorResults(configPath, allResults)
 }
 
 func loadStackDependencyFiles() (*StackDependencyFiles, error) {
@@ -1170,8 +1182,6 @@ func getTechnologyDisplayName(techKey, url string) string {
 }
 
 func createConfigFromDetectorResults(configPath string, results map[string]string) {
-	var config strings.Builder
-
 	// Get project name from directory
 	projectDir := filepath.Dir(configPath)
 	projectName := filepath.Base(projectDir)
@@ -1181,36 +1191,192 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		}
 	}
 
-	// Add project name as root key
-	config.WriteString(fmt.Sprintf("%s:\n", projectName))
+	var existingValues []string
+	configExists := false
 
-	// Repository всегда первым
-	if repo, hasRepo := results["repo"]; hasRepo {
-		config.WriteString(fmt.Sprintf("  Repository: %s\n", repo))
-	}
+	if content, err := os.ReadFile(configPath); err == nil {
+		configExists = true
 
-	// Собираем и сортируем остальные ключи (кроме repo)
-	var keys []string
-	for key := range results {
-		if key != "repo" {
-			keys = append(keys, key)
+		// Extract existing values to check for duplicates
+		var existingData map[string]interface{}
+		if err := yaml.Unmarshal(content, &existingData); err == nil {
+			if projData, exists := existingData[projectName]; exists {
+				if pd, ok := projData.(map[interface{}]interface{}); ok {
+					for _, v := range pd {
+						if strValue, ok := v.(string); ok {
+							existingValues = append(existingValues, strValue)
+						}
+					}
+				}
+			}
 		}
 	}
-	sort.Strings(keys)
 
-	// Add services в алфавитном порядке
-	for _, key := range keys {
-		value := results[key]
+	// Find new services that don't already exist (by value)
+	newData := make(map[string]string)
+	newServices := 0
+
+	for key, value := range results {
 		displayName := getTechnologyDisplayName(key, value)
-		config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, value))
+		if key == "repo" {
+			displayName = "Repository"
+		}
+
+		// Check if this value already exists
+		valueExists := false
+		for _, existingValue := range existingValues {
+			if existingValue == value {
+				valueExists = true
+				break
+			}
+		}
+
+		if !valueExists {
+			newData[displayName] = value
+			newServices++
+		}
 	}
 
-	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
-		fmt.Printf("⚠️  Could not create %s: %v\n", configPath, err)
-		return
-	}
+		if configExists {
+		if len(newData) == 0 {
+			fmt.Printf("\n✨ Config %s is up to date, no new services detected\n", configPath)
+			return
+		}
 
-	fmt.Printf("\n✨ Created %s with detected services\n", configPath)
+		// Read existing content and split by root keys
+		content, err := os.ReadFile(configPath)
+		if err != nil {
+			fmt.Printf("⚠️  Could not read %s: %v\n", configPath, err)
+			return
+		}
+
+				lines := strings.Split(string(content), "\n")
+		var sections []string
+		var currentSection []string
+		var foundProjectSection = false
+		var projectSectionIndex = -1
+
+		// Get our repo URL for fallback search
+		ourRepoURL := ""
+		if repoURL, exists := results["repo"]; exists {
+			ourRepoURL = repoURL
+		}
+
+		for _, line := range lines {
+			// Check if this is a root key (starts without indentation and ends with :)
+			if len(line) > 0 && line[0] != ' ' && line[0] != '\t' && strings.HasSuffix(strings.TrimSpace(line), ":") {
+				// Save previous section if exists
+				if len(currentSection) > 0 {
+					sections = append(sections, strings.Join(currentSection, "\n"))
+				}
+
+				// Check if this is our project section by name
+				rootKey := strings.TrimSuffix(strings.TrimSpace(line), ":")
+				if rootKey == projectName {
+					foundProjectSection = true
+					projectSectionIndex = len(sections)
+				}
+
+				// Start new section
+				currentSection = []string{line}
+			} else {
+				// Add line to current section
+				currentSection = append(currentSection, line)
+			}
+		}
+
+		// Add last section
+		if len(currentSection) > 0 {
+			sections = append(sections, strings.Join(currentSection, "\n"))
+		}
+
+		// If not found by name and we have repo URL, search by repo URL
+		if !foundProjectSection && ourRepoURL != "" {
+			for i, section := range sections {
+				// Parse section to check for repo URL
+				var sectionData map[string]interface{}
+				// Try to parse just this section as YAML
+				lines := strings.Split(section, "\n")
+				if len(lines) > 0 {
+					// Create a temporary YAML with root key
+					tempYaml := section
+					if err := yaml.Unmarshal([]byte(tempYaml), &sectionData); err == nil {
+						// Get the first (and should be only) root key
+						for _, projectData := range sectionData {
+							if pd, ok := projectData.(map[interface{}]interface{}); ok {
+								// Check for repo or Repository fields
+								for k, v := range pd {
+									if kStr, ok := k.(string); ok && (kStr == "repo" || kStr == "Repository") {
+										if vStr, ok := v.(string); ok && vStr == ourRepoURL {
+											foundProjectSection = true
+											projectSectionIndex = i
+											break
+										}
+									}
+								}
+							}
+							break // Only check first root key
+						}
+					}
+				}
+				if foundProjectSection {
+					break
+				}
+			}
+		}
+
+		// Create YAML for new entries
+		newYaml, err := yaml.Marshal(newData)
+		if err != nil {
+			fmt.Printf("⚠️  Could not marshal new data to YAML: %v\n", err)
+			return
+		}
+
+		// Add proper indentation (2 spaces)
+		indentedYaml := ""
+		for _, line := range strings.Split(string(newYaml), "\n") {
+			if strings.TrimSpace(line) != "" {
+				indentedYaml += "  " + line + "\n"
+			}
+		}
+
+		if foundProjectSection {
+			// Add to existing project section
+			sections[projectSectionIndex] = strings.TrimSuffix(sections[projectSectionIndex], "\n") + "\n" + strings.TrimSuffix(indentedYaml, "\n")
+		} else {
+			// Create new project section
+			newSection := fmt.Sprintf("%s:\n%s", projectName, strings.TrimSuffix(indentedYaml, "\n"))
+			sections = append(sections, newSection)
+		}
+
+		// Join all sections back with empty lines between them
+		finalContent := strings.Join(sections, "\n\n") + "\n"
+
+		if err := os.WriteFile(configPath, []byte(finalContent), 0644); err != nil {
+			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
+			return
+		}
+
+		fmt.Printf("\n✨ Updated %s with %d new detected services\n", configPath, newServices)
+	} else {
+		// Create new file with project name as root key
+		fullData := map[string]interface{}{
+			projectName: newData,
+		}
+
+		yamlData, err := yaml.Marshal(fullData)
+		if err != nil {
+			fmt.Printf("⚠️  Could not marshal config to YAML: %v\n", err)
+			return
+		}
+
+		if err := os.WriteFile(configPath, yamlData, 0644); err != nil {
+			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
+			return
+		}
+
+		fmt.Printf("\n✨ Created %s with detected services\n", configPath)
+	}
 }
 
 // ServicesDependenciesAdapter adapts existing functions to detectors interface
