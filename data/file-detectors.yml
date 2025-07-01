@@ -1,0 +1,61 @@
+---
+# File-based technology detection
+# Each entry maps file patterns to technology indicators
+
+ci:
+  gitlab:
+    files:
+      - ".gitlab-ci.yml"
+      - ".gitlab-ci.yaml"
+  github-actions:
+    files:
+      - ".github/workflows/*.yml"
+      - ".github/workflows/*.yaml"
+  bitbucket:
+    files:
+      - "bitbucket-pipelines.yml"
+  azure-devops:
+    files:
+      - "azure-pipelines.yml"
+      - ".azure-pipelines.yml"
+  jenkins:
+    files:
+      - "Jenkinsfile"
+      - "jenkins.yml"
+  circleci:
+    files:
+      - ".circleci/config.yml"
+
+containerization:
+  docker:
+    files:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "docker-compose.yaml"
+      - ".dockerignore"
+
+deployment:
+  kubernetes:
+    files:
+      - "k8s/*.yml"
+      - "k8s/*.yaml"
+      - "kubernetes/*.yml"
+      - "kubernetes/*.yaml"
+      - "deployment.yml"
+      - "deployment.yaml"
+  helm:
+    files:
+      - "Chart.yaml"
+      - "values.yaml"
+      - "charts/"
+
+infrastructure:
+  terraform:
+    files:
+      - "*.tf"
+      - "terraform.tfvars"
+  ansible:
+    files:
+      - "playbook.yml"
+      - "playbook.yaml"
+      - "ansible.cfg"

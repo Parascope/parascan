@@ -1,5 +1,5 @@
-# Соответствия языков к пакетным менеджерам и их файлам зависимостей
-# Где искать библиотеки для точного определения их использования
+# Language mappings to package managers and their dependency files
+# Where to look for libraries to accurately determine their usage
 
 languages:
   python:

@@ -30,6 +30,9 @@ import (
 //go:embed data/stack-dependency-files.yml
 var stackDependencyData []byte
 
+//go:embed data/file-detectors.yml
+var fileDetectorsData []byte
+
 //go:embed data/services/*.yml
 var servicesFS embed.FS
 
@@ -706,6 +709,13 @@ func handleSniff() {
 		return
 	}
 
+	// Load file detectors data
+	fileDetectorsData, err := loadFileDetectorsData()
+	if err != nil {
+		fmt.Printf("❌ Error loading file detectors data: %v\n", err)
+		return
+	}
+
 	// Create detectors
 	var detectorsList []detectors.Detector
 
@@ -719,9 +729,13 @@ func handleSniff() {
 	servicesDetector := detectors.NewServicesDetector(adapter)
 	detectorsList = append(detectorsList, servicesDetector)
 
-	// Add Git detector
+			// Add Git detector
 	gitDetector := &detectors.GitRepositoryDetector{}
 	detectorsList = append(detectorsList, gitDetector)
+
+	// Add Files detector
+	filesDetector := detectors.NewFilesDetector(fileDetectorsData)
+	detectorsList = append(detectorsList, filesDetector)
 
 	// Run all detectors and collect results
 	allResults := make(map[string]string)
@@ -801,6 +815,16 @@ func loadServicesData() (map[string]*ServiceData, error) {
 	}
 
 	return servicesData, nil
+}
+
+func loadFileDetectorsData() (*detectors.FileDetectorData, error) {
+	var fileData detectors.FileDetectorData
+	err := yaml.Unmarshal(fileDetectorsData, &fileData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fileData, nil
 }
 
 func detectProjectLanguages(projectPath string, stackData *StackDependencyFiles) []string {
