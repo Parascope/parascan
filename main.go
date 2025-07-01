@@ -840,8 +840,8 @@ func loadServicesData() (map[string]*ServiceData, error) {
 	return servicesData, nil
 }
 
-func loadFileDetectorsData() (*detectors.FileDetectorData, error) {
-	var fileData detectors.FileDetectorData
+func loadFileDetectorsData() (*detectors.FileDetectors, error) {
+	var fileData detectors.FileDetectors
 	err := yaml.Unmarshal(fileDetectorsData, &fileData)
 	if err != nil {
 		return nil, err
@@ -1138,47 +1138,24 @@ func displayDetectorResults(results map[string]string) {
 	}
 }
 
-func getTechnologyDisplayName(category, url string) string {
-	// Map category + URL patterns to display names
-	switch category {
-	case "ci":
-		if strings.Contains(url, "github.com") && strings.Contains(url, "/actions") {
-			return "GitHub Actions"
+func getTechnologyDisplayName(techKey, url string) string {
+	// Try to load file detectors config to get display names
+	fileDetectors, err := loadFileDetectorsData()
+	if err == nil {
+		if techConfig, exists := fileDetectors.Technologies[techKey]; exists {
+			if techConfig.DisplayName != "" {
+				return techConfig.DisplayName
+			}
 		}
-		if strings.Contains(url, "gitlab.com") && strings.Contains(url, "/-/pipelines") {
-			return "GitLab CI"
-		}
-		if strings.Contains(url, "bitbucket.org") {
-			return "Bitbucket Pipelines"
-		}
-		if strings.Contains(url, "docs.gitlab.com") {
-			return "GitLab CI"
-		}
-		return "CI/CD"
-	case "containerization":
-		if strings.Contains(url, "docker") {
-			return "Docker"
-		}
-		return "Containerization"
-	case "deployment":
-		if strings.Contains(url, "kubernetes") || strings.Contains(url, "k8s") {
-			return "Kubernetes"
-		}
-		if strings.Contains(url, "helm") {
-			return "Helm"
-		}
-		return "Deployment"
-	case "infrastructure":
-		if strings.Contains(url, "terraform") {
-			return "Terraform"
-		}
-		if strings.Contains(url, "ansible") {
-			return "Ansible"
-		}
-		return "Infrastructure"
-	default:
-		return strings.Title(category)
 	}
+
+	// Special case for repository
+	if techKey == "repo" {
+		return "Repository"
+	}
+
+	// Fallback: convert key to title case
+	return strings.Title(techKey)
 }
 
 func createConfigFromDetectorResults(configPath string, results map[string]string) {

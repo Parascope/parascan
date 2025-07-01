@@ -1,43 +1,87 @@
 ---
 # File-based technology detection
-# Each entry maps file patterns to technology indicators
+# Flat structure - detect all technologies independently
 
-ci:
-  gitlab:
+technologies:
+  gitlab-ci:
+    display_name: "GitLab CI"
     files:
       - ".gitlab-ci.yml"
       - ".gitlab-ci.yaml"
     url_template: "{repo}/-/pipelines"
-    fallback_url: "https://docs.gitlab.com/ee/ci/"
+    fallback_url: "https://gitlab.com"
+
   github-actions:
+    display_name: "GitHub Actions"
     files:
       - ".github/workflows/*.yml"
       - ".github/workflows/*.yaml"
     url_template: "{repo}/actions"
-    fallback_url: "https://docs.github.com/en/actions"
-  bitbucket:
+    fallback_url: "https://github.com"
+
+  bitbucket-pipelines:
+    display_name: "Bitbucket Pipelines"
     files:
       - "bitbucket-pipelines.yml"
     url_template: "{repo}/addon/pipelines/home"
-    fallback_url: "https://support.atlassian.com/bitbucket-cloud/docs/get-started-with-bitbucket-pipelines/"
+    fallback_url: "https://bitbucket.org"
+
   azure-devops:
+    display_name: "Azure DevOps"
     files:
       - "azure-pipelines.yml"
       - ".azure-pipelines.yml"
-    fallback_url: "https://docs.microsoft.com/en-us/azure/devops/pipelines/"
+    fallback_url: "https://azure.microsoft.com/en-us/services/devops/"
+
   jenkins:
+    display_name: "Jenkins"
     files:
       - "Jenkinsfile"
       - "jenkins.yml"
-    fallback_url: "https://www.jenkins.io/doc/book/pipeline/"
+    fallback_url: "https://www.jenkins.io"
+
   circleci:
+    display_name: "CircleCI"
     files:
       - ".circleci/config.yml"
-    fallback_url: "https://circleci.com/docs/"
+    fallback_url: "https://circleci.com"
 
+  travis-ci:
+    display_name: "Travis CI"
+    files:
+      - ".travis.yml"
+    fallback_url: "https://travis-ci.com"
 
-deployment:
+  netlify:
+    display_name: "Netlify"
+    files:
+      - "netlify.toml"
+      - "_redirects"
+      - "_headers"
+    fallback_url: "https://netlify.com"
+
+  railway:
+    display_name: "Railway"
+    files:
+      - "railway.toml"
+      - "railway.json"
+    fallback_url: "https://railway.app"
+
+  flyio:
+    display_name: "Fly.io"
+    files:
+      - "fly.toml"
+    fallback_url: "https://fly.io"
+
+  firebase:
+    display_name: "Firebase"
+    files:
+      - "firebase.json"
+      - ".firebaserc"
+    fallback_url: "https://firebase.google.com"
+
   kubernetes:
+    display_name: "Kubernetes"
     files:
       - "k8s/*.yml"
       - "k8s/*.yaml"
@@ -45,19 +89,27 @@ deployment:
       - "kubernetes/*.yaml"
       - "deployment.yml"
       - "deployment.yaml"
+    fallback_url: "https://kubernetes.io"
+
   helm:
+    display_name: "Helm"
     files:
       - "Chart.yaml"
       - "values.yaml"
       - "charts/"
+    fallback_url: "https://helm.sh"
 
-infrastructure:
   terraform:
+    display_name: "Terraform"
     files:
       - "*.tf"
       - "terraform.tfvars"
+    fallback_url: "https://terraform.io"
+
   ansible:
+    display_name: "Ansible"
     files:
       - "playbook.yml"
       - "playbook.yaml"
       - "ansible.cfg"
+    fallback_url: "https://ansible.com"
