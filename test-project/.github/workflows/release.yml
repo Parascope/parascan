@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+
+      - name: Build
+        run: go build -o sitedog main.go
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: sitedog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
