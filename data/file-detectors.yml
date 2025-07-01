@@ -1,0 +1,162 @@
+---
+# File-based technology detection
+# Flat structure - detect all technologies independently
+
+technologies:
+  gitlab-ci:
+    display_name: "GitLab CI"
+    category: "ci"
+    hosting_match: "gitlab.com"
+    files:
+      - ".gitlab-ci.yml"
+      - ".gitlab-ci.yaml"
+    url_template: "{repo}/-/pipelines"
+    fallback_url: "https://gitlab.com"
+
+  github-actions:
+    display_name: "GitHub Actions"
+    category: "ci"
+    hosting_match: "github.com"
+    files:
+      - ".github/workflows/*.yml"
+      - ".github/workflows/*.yaml"
+    url_template: "{repo}/actions"
+    fallback_url: "https://github.com"
+
+  bitbucket-pipelines:
+    display_name: "Bitbucket Pipelines"
+    category: "ci"
+    hosting_match: "bitbucket.org"
+    files:
+      - "bitbucket-pipelines.yml"
+    url_template: "{repo}/addon/pipelines/home"
+    fallback_url: "https://bitbucket.org"
+
+  azure-devops:
+    display_name: "Azure DevOps"
+    category: "ci"
+    files:
+      - "azure-pipelines.yml"
+      - ".azure-pipelines.yml"
+    fallback_url: "https://azure.microsoft.com/en-us/services/devops/"
+
+  jenkins:
+    display_name: "Jenkins"
+    category: "ci"
+    files:
+      - "Jenkinsfile"
+      - "jenkins.yml"
+    fallback_url: "https://www.jenkins.io"
+
+  circleci:
+    display_name: "CircleCI"
+    category: "ci"
+    files:
+      - ".circleci/config.yml"
+    fallback_url: "https://circleci.com"
+
+  travis-ci:
+    display_name: "Travis CI"
+    category: "ci"
+    files:
+      - ".travis.yml"
+    fallback_url: "https://travis-ci.com"
+
+  chrome-extension:
+    display_name: "Chrome Extension"
+    files:
+      - "manifest.json"
+      - "manifest.v2.json"
+      - "manifest.v3.json"
+    fallback_url: "https://chrome.google.com/webstore"
+
+  vscode-extension:
+    display_name: "VSCode Extension"
+    files:
+      - ".vscodeignore"
+      - "vsc-extension-quickstart.md"
+    fallback_url: "https://marketplace.visualstudio.com"
+
+  ruby-gem:
+    display_name: "Ruby Gem"
+    files:
+      - "*.gemspec"
+      - "lib/"
+    fallback_url: "https://rubygems.org"
+
+  nx-workspace:
+    display_name: "Nx Workspace"
+    files:
+      - "nx.json"
+      - "workspace.json"
+    fallback_url: "https://nx.dev"
+
+  wordpress:
+    display_name: "WordPress"
+    files:
+      - "wp-config.php"
+      - "wp-content/"
+      - "wp-includes/"
+    fallback_url: "https://wordpress.org"
+
+  netlify:
+    display_name: "Netlify"
+    files:
+      - "netlify.toml"
+      - "_redirects"
+      - "_headers"
+    fallback_url: "https://netlify.com"
+
+  railway:
+    display_name: "Railway"
+    files:
+      - "railway.toml"
+      - "railway.json"
+    fallback_url: "https://railway.app"
+
+  flyio:
+    display_name: "Fly.io"
+    files:
+      - "fly.toml"
+    fallback_url: "https://fly.io"
+
+  firebase:
+    display_name: "Firebase"
+    files:
+      - "firebase.json"
+      - ".firebaserc"
+    fallback_url: "https://firebase.google.com"
+
+  kubernetes:
+    display_name: "Kubernetes"
+    files:
+      - "k8s/*.yml"
+      - "k8s/*.yaml"
+      - "kubernetes/*.yml"
+      - "kubernetes/*.yaml"
+      - "deployment.yml"
+      - "deployment.yaml"
+    fallback_url: "https://kubernetes.io"
+
+  helm:
+    display_name: "Helm"
+    files:
+      - "Chart.yaml"
+      - "values.yaml"
+      - "charts/"
+    fallback_url: "https://helm.sh"
+
+  terraform:
+    display_name: "Terraform"
+    files:
+      - "*.tf"
+      - "terraform.tfvars"
+    fallback_url: "https://terraform.io"
+
+  ansible:
+    display_name: "Ansible"
+    files:
+      - "playbook.yml"
+      - "playbook.yaml"
+      - "ansible.cfg"
+    fallback_url: "https://ansible.com"

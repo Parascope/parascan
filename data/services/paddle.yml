@@ -1,0 +1,16 @@
+---
+name: Paddle
+url: https://paddle.com
+stacks:
+  python:
+  - django-paddle
+  - paddle-client
+  - paddle-python
+  - paddlepaddle
+  nodejs:
+  - paddle-billing
+  - "@paddle/paddle-js"
+  - paddle-sdk
+  - node-paddle
+  ruby:
+  - paddle_pay

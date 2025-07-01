@@ -1,0 +1,13 @@
+---
+name: Appsignal
+url: https://app.appsignal.com
+stacks:
+  python:
+  - appsignal
+  nodejs:
+  - "@appsignal/nodejs"
+  - "@appsignal/nextjs"
+  - "@appsignal/koa"
+  - "@appsignal/express"
+  ruby:
+  - appsignal
