@@ -84,6 +84,21 @@ technologies:
       - "lib/"
     fallback_url: "https://rubygems.org"
 
+  nx-workspace:
+    display_name: "Nx Workspace"
+    files:
+      - "nx.json"
+      - "workspace.json"
+    fallback_url: "https://nx.dev"
+
+  wordpress:
+    display_name: "WordPress"
+    files:
+      - "wp-config.php"
+      - "wp-content/"
+      - "wp-includes/"
+    fallback_url: "https://wordpress.org"
+
   netlify:
     display_name: "Netlify"
     files:
