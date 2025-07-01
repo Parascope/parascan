@@ -99,6 +99,42 @@ technologies:
       - "wp-includes/"
     fallback_url: "https://wordpress.org"
 
+  vercel:
+    display_name: "Vercel"
+    files:
+      - "vercel.json"
+      - ".vercel/"
+    fallback_url: "https://vercel.com/dashboard"
+
+  supabase:
+    display_name: "Supabase"
+    files:
+      - "supabase/config.toml"
+      - "supabase/"
+    fallback_url: "https://app.supabase.com"
+
+  sanity:
+    display_name: "Sanity"
+    files:
+      - "sanity.config.js"
+      - "sanity.config.ts"
+      - "studio/"
+    fallback_url: "https://sanity.io/manage"
+
+  strapi:
+    display_name: "Strapi"
+    files:
+      - "strapi/"
+      - ".strapi-updater.json"
+    fallback_url: "http://localhost:1337/admin"
+
+  datadog:
+    display_name: "DataDog"
+    files:
+      - "datadog.yaml"
+      - ".datadog.yml"
+    fallback_url: "https://app.datadoghq.com"
+
   netlify:
     display_name: "Netlify"
     files:

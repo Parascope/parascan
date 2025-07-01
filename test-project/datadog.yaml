@@ -1,0 +1,3 @@
+api_key: test
+site: datadoghq.com
+logs_enabled: true
