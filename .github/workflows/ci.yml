@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Build
+        run: ./scripts/build.sh
+
+      - name: Check binary
+        run: |
+          # Verify that the binary was created and is executable
+          if [ -f "dist/sitedog-linux-amd64" ]; then
+            echo "✅ Binary created successfully"
+            chmod +x dist/sitedog-linux-amd64
+            echo "Testing binary functionality..."
+            ./dist/sitedog-linux-amd64 version
+            echo "✅ Binary works correctly"
+          else
+            echo "❌ Binary not found in dist/sitedog-linux-amd64"
+            ls -la dist/ || echo "dist directory not found"
+            exit 1
+          fi
+
+      - name: Build status
+        run: |
+          echo "🎉 Build completed successfully!"
+          echo "All checks passed:"
+          echo "  ✅ Dependencies verified"
+          echo "  ✅ Tests passed"
+          echo "  ✅ Binary built successfully"
+          echo "  ✅ Binary is executable" 

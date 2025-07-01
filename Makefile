@@ -32,7 +32,7 @@ build:
 	go build -o sitedog main.go
 
 docker-build:
-	docker run --rm -v $(PWD):/app -w /app golang:1.20-alpine sh -c "./scripts/build.sh"
+	docker run --rm -v $(PWD):/app -w /app golang:1.24-alpine sh -c "./scripts/build.sh"
 
 push!: build push-gist
 
