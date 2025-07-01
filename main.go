@@ -247,9 +247,7 @@ func openBrowser(url string) {
 func handlePush() {
 	pushFlags := flag.NewFlagSet("push", flag.ExitOnError)
 	configFile := pushFlags.String("config", defaultConfigPath, "Path to config file")
-	configName := pushFlags.String("title", "", "Configuration title")
 	remoteURL := pushFlags.String("remote", "", "Custom API base URL (e.g., localhost:3000, api.example.com)")
-	namespace := pushFlags.String("namespace", "", "Namespace for the configuration (e.g., my-group)")
 	pushFlags.Parse(os.Args[2:])
 
 	if _, err := os.Stat(*configFile); err != nil {
@@ -282,24 +280,14 @@ func handlePush() {
 		os.Exit(1)
 	}
 
-	// Get configuration name from directory name if not specified
-	if *configName == "" {
-		dir, err := os.Getwd()
-		if err != nil {
-			fmt.Println("Error getting current directory:", err)
-			os.Exit(1)
-		}
-		*configName = filepath.Base(dir)
-	}
-
 	// Send configuration to server
-	err = pushConfig(token, *configName, string(config), apiURL, *namespace)
+	err = pushConfig(token, string(config), apiURL)
 	if err != nil {
 		fmt.Println("Error pushing config:", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Configuration '%s' pushed successfully to %s!\n", *configName, apiURL)
+	fmt.Printf("Configuration pushed successfully to %s!\n", apiURL)
 }
 
 // isTerminalInteractive checks if we're running in an interactive terminal
@@ -417,11 +405,9 @@ func validatePincode(apiURL, pincode string) (string, error) {
 	return result.Token, nil
 }
 
-func pushConfig(token, name, content, apiURL, namespace string) error {
+func pushConfig(token, content, apiURL string) error {
 	reqBody, err := json.Marshal(map[string]string{
-		"name":      name,
 		"content":   content,
-		"namespace": namespace,
 	})
 	if err != nil {
 		return fmt.Errorf("error creating request: %v", err)
