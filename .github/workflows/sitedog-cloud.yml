@@ -9,7 +9,6 @@ on:
 jobs:
   sync-config:
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'sitedog-io' }} # Only run for official repo
 
     steps:
       - name: Checkout code
