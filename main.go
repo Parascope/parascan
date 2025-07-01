@@ -38,7 +38,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io" // Change to your actual API URL
-	Version            = "v0.3.3"
+	Version            = "v0.4.0"
 	exampleConfig      = `# Describe your project with a free key-value format, think simple.
 #
 # Random sample:
@@ -65,6 +65,8 @@ func main() {
 		handleRender()
 	case "sniff":
 		handleSniff()
+	case "logout":
+		handleLogout()
 	case "version":
 		fmt.Println("sitedog version", Version)
 	case "help":
@@ -84,6 +86,7 @@ Commands:
   push    Push configuration to cloud
   render  Render template to HTML
   sniff   Detect technology stack and analyze dependencies
+  logout  Remove authentication token
   version Print version
   help    Show this help message
 
@@ -119,6 +122,7 @@ Examples:
   SITEDOG_TOKEN=your_token sitedog push --title my-project
   sitedog render --output index.html
   sitedog sniff --path ./my-project`)
+  sitedog logout`)
 }
 
 func handleInit() {
@@ -326,37 +330,73 @@ func getAuthToken(apiURL string) (string, error) {
 		return strings.TrimSpace(string(token)), nil
 	}
 
-	// If file doesn't exist, request authorization
-	fmt.Print("Username: ")
-	var username string
-	fmt.Scanln(&username)
+	// If not authenticated, start device authentication flow
+	fmt.Println("Authentication required.")
+	fmt.Printf("Please visit: %s/auth_device\n", apiURL)
+	fmt.Println("Then enter the PIN code shown on the page.")
 
-	fmt.Print("Email: ")
-	var email string
-	fmt.Scanln(&email)
+	// Loop for PIN code verification
+	for {
+		fmt.Print("PIN code: ")
+		var pincode string
+		fmt.Scanln(&pincode)
 
-	fmt.Print("Password: ")
-	var password string
-	fmt.Scanln(&password)
+		// Validate PIN code with server
+		token, err := validatePincode(apiURL, strings.TrimSpace(pincode))
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			fmt.Println("Please check the PIN code and try again.")
+			continue
+		}
 
-	// Create authorization request
+		// Create .sitedog directory if it doesn't exist
+		authDir := filepath.Dir(authFile)
+		if err := os.MkdirAll(authDir, 0700); err != nil {
+			return "", fmt.Errorf("error creating auth directory: %v", err)
+		}
+
+		// Save the token
+		if err := ioutil.WriteFile(authFile, []byte(token), 0600); err != nil {
+			return "", fmt.Errorf("error saving token: %v", err)
+		}
+
+		return token, nil
+	}
+}
+
+// validatePincode sends PIN code to server for validation and returns token if valid
+func validatePincode(apiURL, pincode string) (string, error) {
+	// Create PIN validation request
 	reqBody, err := json.Marshal(map[string]string{
-		"username": username,
-		"email":    email,
-		"password": password,
+		"pincode": pincode,
 	})
 	if err != nil {
 		return "", fmt.Errorf("error creating request: %v", err)
 	}
 
-	resp, err := http.Post(apiURL+"/cli/auth", "application/json", strings.NewReader(string(reqBody)))
+	resp, err := http.Post(apiURL+"/cli/validate_pincode", "application/json", strings.NewReader(string(reqBody)))
 	if err != nil {
 		return "", fmt.Errorf("error sending request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("authentication failed: %s", resp.Status)
+		// Read response body to get error details
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("PIN validation failed: %s (could not read error details)", resp.Status)
+		}
+
+		// Try to parse error response
+		var errorResponse struct {
+			Error string `json:"error"`
+		}
+		if err := json.Unmarshal(body, &errorResponse); err == nil && errorResponse.Error != "" {
+			return "", fmt.Errorf("PIN validation failed: %s", errorResponse.Error)
+		}
+
+		// Fallback to raw body if JSON parsing fails
+		return "", fmt.Errorf("PIN validation failed: %s", strings.TrimSpace(string(body)))
 	}
 
 	var result struct {
@@ -366,15 +406,8 @@ func getAuthToken(apiURL string) (string, error) {
 		return "", fmt.Errorf("error parsing response: %v", err)
 	}
 
-	// Create .sitedog directory if it doesn't exist
-	authDir := filepath.Dir(authFile)
-	if err := os.MkdirAll(authDir, 0700); err != nil {
-		return "", fmt.Errorf("error creating auth directory: %v", err)
-	}
-
-	// Save the token
-	if err := ioutil.WriteFile(authFile, []byte(result.Token), 0600); err != nil {
-		return "", fmt.Errorf("error saving token: %v", err)
+	if result.Token == "" {
+		return "", fmt.Errorf("no token received from server")
 	}
 
 	return result.Token, nil
@@ -963,4 +996,29 @@ func displayResults(results []DetectionResult) {
 	for serviceName := range allServices {
 		fmt.Printf("  🔗 %s\n", strings.Title(serviceName))
 	}
+}
+
+func handleLogout() {
+	// Get current user to find auth file path
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println("Error getting current user:", err)
+		os.Exit(1)
+	}
+
+	authFile := filepath.Join(usr.HomeDir, authFilePath)
+
+	// Check if auth file exists
+	if _, err := os.Stat(authFile); err != nil {
+		fmt.Println("No authentication token found. You are already logged out.")
+		return
+	}
+
+	// Remove the auth file
+	if err := os.Remove(authFile); err != nil {
+		fmt.Println("Error removing authentication token:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Successfully logged out. Authentication token removed.")
 }
