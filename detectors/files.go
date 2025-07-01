@@ -44,7 +44,12 @@ func (f *FilesDetector) Detect(ctx *DetectionContext) (map[string]string, error)
 	for techKey, techConfig := range f.data.Technologies {
 		if f.hasMatchingFiles(ctx.ProjectPath, techConfig.Files) {
 			url := f.buildURL(techConfig, techKey, ctx.Results)
-			results[techKey] = url
+			// Используем display_name как ключ для унификации
+			displayName := techConfig.DisplayName
+			if displayName == "" {
+				displayName = techKey
+			}
+			results[displayName] = url
 		}
 	}
 

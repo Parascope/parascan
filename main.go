@@ -17,6 +17,7 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -1125,11 +1126,21 @@ func displayDetectorResults(results map[string]string) {
 
 	if serviceCount > 0 {
 		fmt.Printf("🔍 Detected %d service(s):\n", serviceCount)
-		for key, value := range results {
-			if key != "repo" { // Skip repo for services display
-				displayName := getTechnologyDisplayName(key, value)
-				fmt.Printf("  🔗 %s → %s\n", displayName, value)
+
+		// Собираем и сортируем ключи (кроме repo)
+		var keys []string
+		for key := range results {
+			if key != "repo" {
+				keys = append(keys, key)
 			}
+		}
+		sort.Strings(keys)
+
+		// Выводим в отсортированном порядке
+		for _, key := range keys {
+			value := results[key]
+			displayName := getTechnologyDisplayName(key, value)
+			fmt.Printf("  🔗 %s → %s\n", displayName, value)
 		}
 	}
 
@@ -1173,14 +1184,25 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 	// Add project name as root key
 	config.WriteString(fmt.Sprintf("%s:\n", projectName))
 
-	// Add all detected key-value pairs with display names
-	for key, value := range results {
-		if key == "repo" {
-			config.WriteString(fmt.Sprintf("  Repository: %s\n", value))
-		} else {
-			displayName := getTechnologyDisplayName(key, value)
-			config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, value))
+	// Repository всегда первым
+	if repo, hasRepo := results["repo"]; hasRepo {
+		config.WriteString(fmt.Sprintf("  Repository: %s\n", repo))
+	}
+
+	// Собираем и сортируем остальные ключи (кроме repo)
+	var keys []string
+	for key := range results {
+		if key != "repo" {
+			keys = append(keys, key)
 		}
+	}
+	sort.Strings(keys)
+
+	// Add services в алфавитном порядке
+	for _, key := range keys {
+		value := results[key]
+		displayName := getTechnologyDisplayName(key, value)
+		config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, value))
 	}
 
 	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
