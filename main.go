@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/go-shiori/obelisk"
+	"golang.org/x/term"
 	"gopkg.in/yaml.v2"
 
 	"sitedog/detectors"
@@ -61,16 +62,14 @@ func main() {
 		return
 	}
 	switch os.Args[1] {
-	case "init":
-		handleInit()
-	case "live":
-		handleLive()
+	case "sniff":
+		handleSniff()
+	case "serve":
+		handleServe()
 	case "push":
 		handlePush()
 	case "render":
 		handleRender()
-	case "sniff":
-		handleSniff()
 	case "logout":
 		handleLogout()
 	case "version":
@@ -84,66 +83,32 @@ func main() {
 }
 
 func showHelp() {
-	fmt.Println(`Usage: sitedog <command>
+	fmt.Println(`Usage: sitedog <command> <path(optional)>
 
 Commands:
-  init    Create sitedog.yml configuration file
-  live    Start live server with preview
-  push    Push configuration to cloud
-  render  Render template to HTML
-  sniff   Detect technology stack and analyze dependencies
+  sniff   Detect your stack and create sitedog.yml
+  serve   Start live server with preview
+  push    Send configuration to cloud
+  render  Render HTML card
+
   logout  Remove authentication token
-  version Print version
+  version Show version
   help    Show this help message
 
-Options for init:
-  --config PATH    Path to config file (default: ./sitedog.yml)
-
-Options for live:
-  --config PATH    Path to config file (default: ./sitedog.yml)
+Options for serve:
   --port PORT      Port to run server on (default: 8081)
 
-Options for push:
-  --config PATH    Path to config file (default: ./sitedog.yml)
-  --title TITLE    Configuration title (default: current directory name)
-  --remote URL     Custom API base URL (e.g., localhost:3000, api.example.com)
-  --namespace NAMESPACE Namespace for the configuration (e.g., my-group)
-  SITEDOG_TOKEN    Environment variable for authentication token
-
 Options for render:
-  --config PATH    Path to config file (default: ./sitedog.yml)
   --output PATH    Path to output HTML file (default: sitedog.html)
 
-Options for sniff:
-  --path PATH      Path to analyze (default: current directory)
-
 Examples:
-  sitedog init --config my-config.yml
-  sitedog live --port 3030
-  sitedog push --title my-project
-  sitedog push --remote localhost:3000 --title my-project
-  sitedog push --remote api.example.com --title my-project
-  sitedog push --remote https://api.example2.com --title my-project
-  sitedog push --namespace my-group --title my-project
-  SITEDOG_TOKEN=your_token sitedog push --title my-project
-  sitedog render --output index.html
-  sitedog sniff --path ./my-project
-  sitedog logout`)
+  sitedog sniff                          # detect stack and create sitedog.yml
+  sitedog sniff ./my-project             # detect stack in directory and create config
+
+  sitedog serve --port 3030`)
 }
 
-func handleInit() {
-	configPath := flag.NewFlagSet("init", flag.ExitOnError)
-	configFile := configPath.String("config", defaultConfigPath, "Path to config file")
-	configPath.Parse(os.Args[2:])
-	if _, err := os.Stat(*configFile); err == nil {
-		fmt.Println("Error:", *configFile, "already exists")
-		os.Exit(1)
-	}
-	if err := ioutil.WriteFile(*configFile, []byte(exampleConfig), 0644); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Created", *configFile, "configuration file")
-}
+
 
 func startServer(configFile *string, port int) (*http.Server, string) {
 	// Handlers
@@ -192,18 +157,41 @@ func startServer(configFile *string, port int) (*http.Server, string) {
 	return server, addr
 }
 
-func handleLive() {
-	liveFlags := flag.NewFlagSet("live", flag.ExitOnError)
-	configFile := liveFlags.String("config", defaultConfigPath, "Path to config file")
-	port := liveFlags.Int("port", defaultPort, "Port to run server on")
-	liveFlags.Parse(os.Args[2:])
+func handleServe() {
+	// Parse arguments - path can be positional argument
+	var configFile string
+	var port int = defaultPort
 
-	if _, err := os.Stat(*configFile); err != nil {
-		fmt.Println("Error:", *configFile, "not found. Run 'sitedog init' first.")
+	// Parse remaining arguments for flags
+	args := os.Args[2:]
+
+	// Look for positional argument (path)
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		pathArg := args[0]
+		args = args[1:] // Remove from args to process flags
+
+		// Check if path is a file or directory
+		if strings.HasSuffix(pathArg, ".yml") || strings.HasSuffix(pathArg, ".yaml") {
+			configFile = pathArg
+		} else {
+			configFile = filepath.Join(pathArg, "sitedog.yml")
+		}
+	} else {
+		configFile = defaultConfigPath
+	}
+
+	// Parse remaining flags
+	serveFlags := flag.NewFlagSet("serve", flag.ExitOnError)
+	portFlag := serveFlags.Int("port", defaultPort, "Port to run server on")
+	serveFlags.Parse(args)
+	port = *portFlag
+
+	if _, err := os.Stat(configFile); err != nil {
+		fmt.Println("Error:", configFile, "not found. Run 'sitedog sniff' first.")
 		os.Exit(1)
 	}
 
-	server, addr := startServer(configFile, *port)
+	server, addr := startServer(&configFile, port)
 	url := "http://localhost" + addr
 
 	go func() {
@@ -314,6 +302,11 @@ func handlePush() {
 	fmt.Printf("Configuration '%s' pushed successfully to %s!\n", *configName, apiURL)
 }
 
+// isTerminalInteractive checks if we're running in an interactive terminal
+func isTerminalInteractive() bool {
+	return term.IsTerminal(int(os.Stdin.Fd()))
+}
+
 func getAuthToken(apiURL string) (string, error) {
 	// First check for environment variable
 	if token := os.Getenv("SITEDOG_TOKEN"); token != "" {
@@ -334,6 +327,11 @@ func getAuthToken(apiURL string) (string, error) {
 			return "", fmt.Errorf("error reading auth file: %v", err)
 		}
 		return strings.TrimSpace(string(token)), nil
+	}
+
+	// Check if we're in a non-interactive environment
+	if !isTerminalInteractive() {
+		return "", fmt.Errorf("authentication required but running in non-interactive mode.\nPlease set SITEDOG_TOKEN environment variable.\nGet your token at: %s/auth_device", apiURL)
 	}
 
 	// If not authenticated, start device authentication flow
@@ -682,12 +680,29 @@ type PackageInfo struct {
 }
 
 func handleSniff() {
-	sniffFlags := flag.NewFlagSet("sniff", flag.ExitOnError)
-	projectPath := sniffFlags.String("path", ".", "Path to analyze")
-	sniffFlags.Parse(os.Args[2:])
+	// Parse arguments - path can be positional argument
+	var projectPath, configPath string
+	if len(os.Args) >= 3 {
+		argPath := os.Args[2]
+		if strings.HasSuffix(argPath, ".yml") || strings.HasSuffix(argPath, ".yaml") {
+			// Argument is a config file path - analyze parent directory, save to specified file
+			configPath = argPath
+			projectPath = filepath.Dir(argPath)
+			if projectPath == "." {
+				projectPath = "."
+			}
+		} else {
+			// Argument is a directory path
+			projectPath = argPath
+			configPath = filepath.Join(projectPath, "sitedog.yml")
+		}
+	} else {
+		projectPath = "."
+		configPath = "sitedog.yml"
+	}
 
-	displayPath := *projectPath
-	if *projectPath == "." {
+	displayPath := projectPath
+	if projectPath == "." {
 		if cwd, err := os.Getwd(); err == nil {
 			displayPath = "current directory (" + filepath.Base(cwd) + ")"
 		} else {
@@ -745,7 +760,7 @@ func handleSniff() {
 	// Run phase 1 detectors
 	allResults := make(map[string]string)
 	ctx := &detectors.DetectionContext{
-		ProjectPath: *projectPath,
+		ProjectPath: projectPath,
 		Results:     make(map[string]string),
 	}
 
@@ -778,7 +793,7 @@ func handleSniff() {
 	}
 
 	// Show language detection for user feedback (keep existing behavior)
-	detectedLanguages := detectProjectLanguages(*projectPath, stackData)
+	detectedLanguages := detectProjectLanguages(projectPath, stackData)
 	if len(detectedLanguages) > 0 {
 		if len(detectedLanguages) == 1 {
 			fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
@@ -796,7 +811,6 @@ func handleSniff() {
 	displayDetectorResults(allResults)
 
 	// Create configuration
-	configPath := filepath.Join(*projectPath, "sitedog.yml")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		createConfigFromDetectorResults(configPath, allResults)
 	}
