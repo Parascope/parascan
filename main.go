@@ -810,10 +810,8 @@ func handleSniff() {
 	// Display results
 	displayDetectorResults(allResults)
 
-	// Create configuration
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		createConfigFromDetectorResults(configPath, allResults)
-	}
+	// Create or update configuration
+	createConfigFromDetectorResults(configPath, allResults)
 }
 
 func loadStackDependencyFiles() (*StackDependencyFiles, error) {
@@ -1184,8 +1182,6 @@ func getTechnologyDisplayName(techKey, url string) string {
 }
 
 func createConfigFromDetectorResults(configPath string, results map[string]string) {
-	var config strings.Builder
-
 	// Get project name from directory
 	projectDir := filepath.Dir(configPath)
 	projectName := filepath.Base(projectDir)
@@ -1195,36 +1191,106 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		}
 	}
 
-	// Add project name as root key
-	config.WriteString(fmt.Sprintf("%s:\n", projectName))
+	var existingValues []string
+	configExists := false
 
-	// Repository всегда первым
-	if repo, hasRepo := results["repo"]; hasRepo {
-		config.WriteString(fmt.Sprintf("  Repository: %s\n", repo))
-	}
+	if content, err := os.ReadFile(configPath); err == nil {
+		configExists = true
 
-	// Собираем и сортируем остальные ключи (кроме repo)
-	var keys []string
-	for key := range results {
-		if key != "repo" {
-			keys = append(keys, key)
+		// Extract existing values to check for duplicates
+		var existingData map[string]interface{}
+		if err := yaml.Unmarshal(content, &existingData); err == nil {
+			if projData, exists := existingData[projectName]; exists {
+				if pd, ok := projData.(map[interface{}]interface{}); ok {
+					for _, v := range pd {
+						if strValue, ok := v.(string); ok {
+							existingValues = append(existingValues, strValue)
+						}
+					}
+				}
+			}
 		}
 	}
-	sort.Strings(keys)
 
-	// Add services в алфавитном порядке
-	for _, key := range keys {
-		value := results[key]
+	// Find new services that don't already exist (by value)
+	newData := make(map[string]string)
+	newServices := 0
+
+	for key, value := range results {
 		displayName := getTechnologyDisplayName(key, value)
-		config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, value))
+		if key == "repo" {
+			displayName = "Repository"
+		}
+
+		// Check if this value already exists
+		valueExists := false
+		for _, existingValue := range existingValues {
+			if existingValue == value {
+				valueExists = true
+				break
+			}
+		}
+
+		if !valueExists {
+			newData[displayName] = value
+			newServices++
+		}
 	}
 
-	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
-		fmt.Printf("⚠️  Could not create %s: %v\n", configPath, err)
-		return
-	}
+	if configExists {
+		if len(newData) == 0 {
+			fmt.Printf("\n✨ Config %s is up to date, no new services detected\n", configPath)
+			return
+		}
 
-	fmt.Printf("\n✨ Created %s with detected services\n", configPath)
+		// Create YAML for new entries only (without root key)
+		newYaml, err := yaml.Marshal(newData)
+		if err != nil {
+			fmt.Printf("⚠️  Could not marshal new data to YAML: %v\n", err)
+			return
+		}
+
+		// Add proper indentation (2 spaces)
+		indentedYaml := ""
+		for _, line := range strings.Split(string(newYaml), "\n") {
+			if strings.TrimSpace(line) != "" {
+				indentedYaml += "  " + line + "\n"
+			}
+		}
+
+		// Append to existing file
+		file, err := os.OpenFile(configPath, os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Printf("⚠️  Could not open %s for appending: %v\n", configPath, err)
+			return
+		}
+		defer file.Close()
+
+		if _, err := file.WriteString(indentedYaml); err != nil {
+			fmt.Printf("⚠️  Could not append to %s: %v\n", configPath, err)
+			return
+		}
+
+		fmt.Printf("\n✨ Updated %s with %d new detected services\n", configPath, newServices)
+	} else {
+		// Create new file with project name as root key
+		fullData := map[string]interface{}{
+			projectName: newData,
+		}
+
+		yamlData, err := yaml.Marshal(fullData)
+		if err != nil {
+			fmt.Printf("⚠️  Could not marshal config to YAML: %v\n", err)
+			return
+		}
+
+		if err := os.WriteFile(configPath, yamlData, 0644); err != nil {
+			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
+			return
+		}
+
+		fmt.Printf("\n✨ Created %s with detected services\n", configPath)
+	}
 }
 
 // ServicesDependenciesAdapter adapts existing functions to detectors interface
