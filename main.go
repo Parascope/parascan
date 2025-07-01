@@ -969,7 +969,7 @@ func createConfigFromDetection(configPath string, languages []string, results []
 		}
 	}
 
-	if err := ioutil.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
+	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {
 		fmt.Printf("⚠️  Could not create %s: %v\n", configPath, err)
 		return
 	}
