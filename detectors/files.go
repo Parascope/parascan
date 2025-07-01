@@ -14,10 +14,12 @@ type FileDetectors struct {
 
 // TechnologyConfig описывает конфигурацию детекции технологии
 type TechnologyConfig struct {
-	DisplayName string   `yaml:"display_name"`
-	Files       []string `yaml:"files"`
-	URLTemplate string   `yaml:"url_template,omitempty"`
-	FallbackURL string   `yaml:"fallback_url,omitempty"`
+	DisplayName  string   `yaml:"display_name"`
+	Category     string   `yaml:"category,omitempty"`
+	HostingMatch string   `yaml:"hosting_match,omitempty"`
+	Files        []string `yaml:"files"`
+	URLTemplate  string   `yaml:"url_template,omitempty"`
+	FallbackURL  string   `yaml:"fallback_url,omitempty"`
 }
 
 // FilesDetector detects technologies based on file presence
@@ -39,46 +41,11 @@ func (f *FilesDetector) Detect(ctx *DetectionContext) (map[string]string, error)
 	results := make(map[string]string)
 
 	// Детектируем все технологии
-	ciTechs := make(map[string]string)
-	otherTechs := make(map[string]string)
-
 	for techKey, techConfig := range f.data.Technologies {
 		if f.hasMatchingFiles(ctx.ProjectPath, techConfig.Files) {
 			url := f.buildURL(techConfig, techKey, ctx.Results)
-
-			// Разделяем CI системы от остальных для приоритизации
-			if f.isCITechnology(techKey) {
-				ciTechs[techKey] = url
-			} else {
-				otherTechs[techKey] = url
-			}
+			results[techKey] = url
 		}
-	}
-
-	// Применяем приоритизацию для CI в зависимости от хостинга
-	if len(ciTechs) > 1 {
-		repoURL := ctx.Results["repo"]
-		for tech, url := range ciTechs {
-			if f.isMatchingHosting(tech, repoURL) {
-				results[tech] = url
-				goto addOthers // Добавляем только подходящий CI
-			}
-		}
-		// Если ни один не подходит, добавляем все
-		for tech, url := range ciTechs {
-			results[tech] = url
-		}
-	} else {
-		// Один или ноль CI - добавляем как есть
-		for tech, url := range ciTechs {
-			results[tech] = url
-		}
-	}
-
-addOthers:
-	// Добавляем все остальные технологии
-	for tech, url := range otherTechs {
-		results[tech] = url
 	}
 
 	return results, nil
@@ -90,25 +57,16 @@ func (f *FilesDetector) buildURL(config TechnologyConfig, technology string, con
 
 	// Try to build dynamic URL
 	if hasRepo && config.URLTemplate != "" {
-		// Check if CI technology matches repo hosting
-		if f.isCITechnology(technology) {
-			if f.isGitHubRepo(repoURL) && technology != "github-actions" {
-				// Не GitHub Actions на GitHub repo - используем fallback
-				if config.FallbackURL != "" {
-					return config.FallbackURL
-				}
-				return technology
+		// Check if technology matches repo hosting (data-driven)
+		if config.HostingMatch != "" && !strings.Contains(repoURL, config.HostingMatch) {
+			// Hosting doesn't match - use fallback
+			if config.FallbackURL != "" {
+				return config.FallbackURL
 			}
-			if f.isGitLabRepo(repoURL) && technology != "gitlab-ci" {
-				// Не GitLab CI на GitLab repo - используем fallback
-				if config.FallbackURL != "" {
-					return config.FallbackURL
-				}
-				return technology
-			}
+			return technology
 		}
 
-		// Use template if hosting matches
+		// Use template if hosting matches or no hosting requirement
 		return strings.ReplaceAll(config.URLTemplate, "{repo}", repoURL)
 	}
 
@@ -118,44 +76,6 @@ func (f *FilesDetector) buildURL(config TechnologyConfig, technology string, con
 	}
 
 	return technology
-}
-
-func (f *FilesDetector) isCITechnology(technology string) bool {
-	ciTechs := map[string]bool{
-		"gitlab-ci":           true,
-		"github-actions":      true,
-		"bitbucket-pipelines": true,
-		"azure-devops":        true,
-		"jenkins":             true,
-		"circleci":            true,
-		"travis-ci":           true,
-	}
-	return ciTechs[technology]
-}
-
-func (f *FilesDetector) isGitLabRepo(repoURL string) bool {
-	return strings.Contains(repoURL, "gitlab.com")
-}
-
-func (f *FilesDetector) isGitHubRepo(repoURL string) bool {
-	return strings.Contains(repoURL, "github.com")
-}
-
-func (f *FilesDetector) isMatchingHosting(technology, repoURL string) bool {
-	if repoURL == "" {
-		return false
-	}
-
-	switch technology {
-	case "github-actions":
-		return f.isGitHubRepo(repoURL)
-	case "gitlab-ci":
-		return f.isGitLabRepo(repoURL)
-	case "bitbucket-pipelines":
-		return strings.Contains(repoURL, "bitbucket.org")
-	default:
-		return false
-	}
 }
 
 func (f *FilesDetector) hasMatchingFiles(projectPath string, patterns []string) bool {

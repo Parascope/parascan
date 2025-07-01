@@ -5,6 +5,8 @@
 technologies:
   gitlab-ci:
     display_name: "GitLab CI"
+    category: "ci"
+    hosting_match: "gitlab.com"
     files:
       - ".gitlab-ci.yml"
       - ".gitlab-ci.yaml"
@@ -13,6 +15,8 @@ technologies:
 
   github-actions:
     display_name: "GitHub Actions"
+    category: "ci"
+    hosting_match: "github.com"
     files:
       - ".github/workflows/*.yml"
       - ".github/workflows/*.yaml"
@@ -21,6 +25,8 @@ technologies:
 
   bitbucket-pipelines:
     display_name: "Bitbucket Pipelines"
+    category: "ci"
+    hosting_match: "bitbucket.org"
     files:
       - "bitbucket-pipelines.yml"
     url_template: "{repo}/addon/pipelines/home"
@@ -28,6 +34,7 @@ technologies:
 
   azure-devops:
     display_name: "Azure DevOps"
+    category: "ci"
     files:
       - "azure-pipelines.yml"
       - ".azure-pipelines.yml"
@@ -35,6 +42,7 @@ technologies:
 
   jenkins:
     display_name: "Jenkins"
+    category: "ci"
     files:
       - "Jenkinsfile"
       - "jenkins.yml"
@@ -42,12 +50,14 @@ technologies:
 
   circleci:
     display_name: "CircleCI"
+    category: "ci"
     files:
       - ".circleci/config.yml"
     fallback_url: "https://circleci.com"
 
   travis-ci:
     display_name: "Travis CI"
+    category: "ci"
     files:
       - ".travis.yml"
     fallback_url: "https://travis-ci.com"
