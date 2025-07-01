@@ -121,7 +121,7 @@ Examples:
   sitedog push --namespace my-group --title my-project
   SITEDOG_TOKEN=your_token sitedog push --title my-project
   sitedog render --output index.html
-  sitedog sniff --path ./my-project`)
+  sitedog sniff --path ./my-project
   sitedog logout`)
 }
 
@@ -736,7 +736,7 @@ func handleSniff() {
 	// Check if sitedog.yml exists, if not - create it
 	configPath := filepath.Join(*projectPath, "sitedog.yml")
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		createConfigFromDetection(configPath, detectedLanguages, results)
+		createConfigFromDetection(configPath, detectedLanguages, results, servicesData)
 	}
 }
 
@@ -940,7 +940,7 @@ func isPackageInFile(content, fileName, packageName, language string) bool {
 }
 
 // Create sitedog.yml configuration based on detected technologies and services
-func createConfigFromDetection(configPath string, languages []string, results []DetectionResult) {
+func createConfigFromDetection(configPath string, languages []string, results []DetectionResult, servicesData map[string]*ServiceData) {
 	var config strings.Builder
 
 	// Get project name from directory
@@ -955,7 +955,7 @@ func createConfigFromDetection(configPath string, languages []string, results []
 	// Add project name as root key
 	config.WriteString(fmt.Sprintf("%s:\n", projectName))
 
-	// Add detected services
+	// Add detected services with their URLs
 	allServices := make(map[string]bool)
 	for _, result := range results {
 		for _, service := range result.Services {
@@ -965,7 +965,12 @@ func createConfigFromDetection(configPath string, languages []string, results []
 
 	if len(allServices) > 0 {
 		for serviceName := range allServices {
-			config.WriteString(fmt.Sprintf("  %s: %s\n", strings.ToLower(serviceName), serviceName))
+			// Get URL from servicesData, fallback to service name if not found
+			serviceURL := serviceName
+			if serviceData, exists := servicesData[serviceName]; exists && serviceData.URL != "" {
+				serviceURL = serviceData.URL
+			}
+			config.WriteString(fmt.Sprintf("  %s: %s\n", strings.ToLower(serviceName), serviceURL))
 		}
 	}
 
