@@ -731,7 +731,7 @@ func handleSniff() {
 	}
 
 	// Display results
-	displayResults(results)
+	displayResults(results, servicesData)
 
 	// Check if sitedog.yml exists, if not - create it
 	configPath := filepath.Join(*projectPath, "sitedog.yml")
@@ -964,13 +964,17 @@ func createConfigFromDetection(configPath string, languages []string, results []
 	}
 
 	if len(allServices) > 0 {
-		for serviceName := range allServices {
-			// Get URL from servicesData, fallback to service name if not found
-			serviceURL := serviceName
-			if serviceData, exists := servicesData[serviceName]; exists && serviceData.URL != "" {
-				serviceURL = serviceData.URL
+		for serviceKey := range allServices {
+			// Get name and URL from servicesData
+			displayName := serviceKey // fallback to file key
+			serviceURL := serviceKey  // fallback
+			if serviceData, exists := servicesData[serviceKey]; exists {
+				displayName = serviceData.Name // use name from YAML
+				if serviceData.URL != "" {
+					serviceURL = serviceData.URL
+				}
 			}
-			config.WriteString(fmt.Sprintf("  %s: %s\n", strings.ToLower(serviceName), serviceURL))
+			config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, serviceURL))
 		}
 	}
 
@@ -979,10 +983,10 @@ func createConfigFromDetection(configPath string, languages []string, results []
 		return
 	}
 
-	fmt.Printf("✨ Created %s with detected technologies and services\n", configPath)
+	fmt.Printf("\n✨ Created %s with detected services\n", configPath)
 }
 
-func displayResults(results []DetectionResult) {
+func displayResults(results []DetectionResult, servicesData map[string]*ServiceData) {
 	// Collect all unique services across all languages
 	allServices := make(map[string]bool)
 
@@ -999,7 +1003,15 @@ func displayResults(results []DetectionResult) {
 
 	fmt.Printf("🔍 Detected %d service(s):\n", len(allServices))
 	for serviceName := range allServices {
-		fmt.Printf("  🔗 %s\n", strings.Title(serviceName))
+		if serviceData, exists := servicesData[serviceName]; exists {
+			if serviceData.URL != "" {
+				fmt.Printf("  🔗 %s → %s\n", serviceData.Name, serviceData.URL)
+			} else {
+				fmt.Printf("  🔗 %s\n", serviceData.Name)
+			}
+		} else {
+			fmt.Printf("  🔗 %s\n", strings.Title(serviceName))
+		}
 	}
 }
 
