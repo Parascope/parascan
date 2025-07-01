@@ -1250,11 +1250,17 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			return
 		}
 
-		lines := strings.Split(string(content), "\n")
+				lines := strings.Split(string(content), "\n")
 		var sections []string
 		var currentSection []string
 		var foundProjectSection = false
 		var projectSectionIndex = -1
+
+		// Get our repo URL for fallback search
+		ourRepoURL := ""
+		if repoURL, exists := results["repo"]; exists {
+			ourRepoURL = repoURL
+		}
 
 		for _, line := range lines {
 			// Check if this is a root key (starts without indentation and ends with :)
@@ -1264,7 +1270,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 					sections = append(sections, strings.Join(currentSection, "\n"))
 				}
 
-				// Check if this is our project section
+				// Check if this is our project section by name
 				rootKey := strings.TrimSuffix(strings.TrimSpace(line), ":")
 				if rootKey == projectName {
 					foundProjectSection = true
@@ -1282,6 +1288,41 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		// Add last section
 		if len(currentSection) > 0 {
 			sections = append(sections, strings.Join(currentSection, "\n"))
+		}
+
+		// If not found by name and we have repo URL, search by repo URL
+		if !foundProjectSection && ourRepoURL != "" {
+			for i, section := range sections {
+				// Parse section to check for repo URL
+				var sectionData map[string]interface{}
+				// Try to parse just this section as YAML
+				lines := strings.Split(section, "\n")
+				if len(lines) > 0 {
+					// Create a temporary YAML with root key
+					tempYaml := section
+					if err := yaml.Unmarshal([]byte(tempYaml), &sectionData); err == nil {
+						// Get the first (and should be only) root key
+						for _, projectData := range sectionData {
+							if pd, ok := projectData.(map[interface{}]interface{}); ok {
+								// Check for repo or Repository fields
+								for k, v := range pd {
+									if kStr, ok := k.(string); ok && (kStr == "repo" || kStr == "Repository") {
+										if vStr, ok := v.(string); ok && vStr == ourRepoURL {
+											foundProjectSection = true
+											projectSectionIndex = i
+											break
+										}
+									}
+								}
+							}
+							break // Only check first root key
+						}
+					}
+				}
+				if foundProjectSection {
+					break
+				}
+			}
 		}
 
 		// Create YAML for new entries
