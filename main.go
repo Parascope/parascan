@@ -716,8 +716,9 @@ func handleSniff() {
 		return
 	}
 
-	// Create detectors
-	var detectorsList []detectors.Detector
+		// Create detectors in two phases:
+	// Phase 1: Simple detectors (don't need context)
+	var phase1Detectors []detectors.Detector
 
 	// Create adapter for services dependencies
 	adapter := &ServicesDependenciesAdapter{
@@ -725,23 +726,45 @@ func handleSniff() {
 		servicesData: servicesData,
 	}
 
-	// Add Services detector
+	// Add Services detector (simple)
 	servicesDetector := detectors.NewServicesDetector(adapter)
-	detectorsList = append(detectorsList, servicesDetector)
+	phase1Detectors = append(phase1Detectors, detectors.NewSimpleDetectorAdapter(servicesDetector))
 
-			// Add Git detector
+	// Add Git detector (simple)
 	gitDetector := &detectors.GitRepositoryDetector{}
-	detectorsList = append(detectorsList, gitDetector)
+	phase1Detectors = append(phase1Detectors, detectors.NewSimpleDetectorAdapter(gitDetector))
 
-	// Add Files detector
+	// Phase 2: Context-aware detectors
+	var phase2Detectors []detectors.Detector
+
+	// Add Files detector (needs context for URL building)
 	filesDetector := detectors.NewFilesDetector(fileDetectorsData)
-	detectorsList = append(detectorsList, filesDetector)
+	phase2Detectors = append(phase2Detectors, filesDetector)
 
-	// Run all detectors and collect results
+	// Run phase 1 detectors
 	allResults := make(map[string]string)
+	ctx := &detectors.DetectionContext{
+		ProjectPath: *projectPath,
+		Results:     make(map[string]string),
+	}
 
-		for _, detector := range detectorsList {
-		results, err := detector.Detect(*projectPath)
+	for _, detector := range phase1Detectors {
+		results, err := detector.Detect(ctx)
+		if err != nil {
+			fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			continue
+		}
+
+		// Merge results
+		for key, value := range results {
+			allResults[key] = value
+			ctx.Results[key] = value // Update context for next phase
+		}
+	}
+
+	// Run phase 2 detectors with context
+	for _, detector := range phase2Detectors {
+		results, err := detector.Detect(ctx)
 		if err != nil {
 			fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
 			continue
@@ -1104,13 +1127,57 @@ func displayDetectorResults(results map[string]string) {
 		fmt.Printf("🔍 Detected %d service(s):\n", serviceCount)
 		for key, value := range results {
 			if key != "repo" { // Skip repo for services display
-				fmt.Printf("  🔗 %s → %s\n", key, value)
+				displayName := getTechnologyDisplayName(key, value)
+				fmt.Printf("  🔗 %s → %s\n", displayName, value)
 			}
 		}
 	}
 
 	if repo, hasRepo := results["repo"]; hasRepo {
 		fmt.Printf("📁 Repository: %s\n", repo)
+	}
+}
+
+func getTechnologyDisplayName(category, url string) string {
+	// Map category + URL patterns to display names
+	switch category {
+	case "ci":
+		if strings.Contains(url, "github.com") && strings.Contains(url, "/actions") {
+			return "GitHub Actions"
+		}
+		if strings.Contains(url, "gitlab.com") && strings.Contains(url, "/-/pipelines") {
+			return "GitLab CI"
+		}
+		if strings.Contains(url, "bitbucket.org") {
+			return "Bitbucket Pipelines"
+		}
+		if strings.Contains(url, "docs.gitlab.com") {
+			return "GitLab CI"
+		}
+		return "CI/CD"
+	case "containerization":
+		if strings.Contains(url, "docker") {
+			return "Docker"
+		}
+		return "Containerization"
+	case "deployment":
+		if strings.Contains(url, "kubernetes") || strings.Contains(url, "k8s") {
+			return "Kubernetes"
+		}
+		if strings.Contains(url, "helm") {
+			return "Helm"
+		}
+		return "Deployment"
+	case "infrastructure":
+		if strings.Contains(url, "terraform") {
+			return "Terraform"
+		}
+		if strings.Contains(url, "ansible") {
+			return "Ansible"
+		}
+		return "Infrastructure"
+	default:
+		return strings.Title(category)
 	}
 }
 
@@ -1129,9 +1196,14 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 	// Add project name as root key
 	config.WriteString(fmt.Sprintf("%s:\n", projectName))
 
-	// Add all detected key-value pairs
+	// Add all detected key-value pairs with display names
 	for key, value := range results {
-		config.WriteString(fmt.Sprintf("  %s: %s\n", key, value))
+		if key == "repo" {
+			config.WriteString(fmt.Sprintf("  Repository: %s\n", value))
+		} else {
+			displayName := getTechnologyDisplayName(key, value)
+			config.WriteString(fmt.Sprintf("  %s: %s\n", displayName, value))
+		}
 	}
 
 	if err := os.WriteFile(configPath, []byte(config.String()), 0644); err != nil {

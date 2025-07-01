@@ -9,6 +9,9 @@ import (
 // GitRepositoryDetector detects git repository information
 type GitRepositoryDetector struct{}
 
+// Ensure GitRepositoryDetector implements SimpleDetector
+var _ SimpleDetector = (*GitRepositoryDetector)(nil)
+
 func (g *GitRepositoryDetector) Name() string {
 	return "git"
 }

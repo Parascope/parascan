@@ -29,6 +29,9 @@ type ServicesDetector struct {
 	deps ServicesDependencies
 }
 
+// Ensure ServicesDetector implements SimpleDetector
+var _ SimpleDetector = (*ServicesDetector)(nil)
+
 func NewServicesDetector(deps ServicesDependencies) *ServicesDetector {
 	return &ServicesDetector{
 		deps: deps,

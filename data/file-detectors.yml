@@ -7,32 +7,34 @@ ci:
     files:
       - ".gitlab-ci.yml"
       - ".gitlab-ci.yaml"
+    url_template: "{repo}/-/pipelines"
+    fallback_url: "https://docs.gitlab.com/ee/ci/"
   github-actions:
     files:
       - ".github/workflows/*.yml"
       - ".github/workflows/*.yaml"
+    url_template: "{repo}/actions"
+    fallback_url: "https://docs.github.com/en/actions"
   bitbucket:
     files:
       - "bitbucket-pipelines.yml"
+    url_template: "{repo}/addon/pipelines/home"
+    fallback_url: "https://support.atlassian.com/bitbucket-cloud/docs/get-started-with-bitbucket-pipelines/"
   azure-devops:
     files:
       - "azure-pipelines.yml"
       - ".azure-pipelines.yml"
+    fallback_url: "https://docs.microsoft.com/en-us/azure/devops/pipelines/"
   jenkins:
     files:
       - "Jenkinsfile"
       - "jenkins.yml"
+    fallback_url: "https://www.jenkins.io/doc/book/pipeline/"
   circleci:
     files:
       - ".circleci/config.yml"
+    fallback_url: "https://circleci.com/docs/"
 
-containerization:
-  docker:
-    files:
-      - "Dockerfile"
-      - "docker-compose.yml"
-      - "docker-compose.yaml"
-      - ".dockerignore"
 
 deployment:
   kubernetes:
