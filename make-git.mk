@@ -1,5 +1,3 @@
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-
 branch:
 	git checkout $(ARGS) > /dev/null 2>&1 || git checkout -b $(ARGS)
 
@@ -39,19 +37,6 @@ trunk:
 uncommit:
 	git reset --soft HEAD^
 
-upd:
-	@ make make!
-	git merge master --no-edit
-
-upd!:
-	@	$(eval current_branch := $(BRANCH))
-	@ make make!
-	git fetch
-	git checkout master
-	git pull origin master
-	git checkout $(current_branch)
-	git merge master --no-edit
-
 remote:
 	git remote -v
 
@@ -80,3 +65,17 @@ pull!!: branch-reset
 
 unrebase:
 	git rebase --abort
+
+fetch:
+	git fetch
+
+commit:
+	git commit -m "..."
+
+commit!:
+	git commit -m "..."
+	git push origin $(BRANCH)
+
+...:
+	git add .
+	git commit -m "..."

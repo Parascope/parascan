@@ -1,3 +1,4 @@
+include make-*.mk
 .PHONY: help push build-docker bump-version
 
 help:
@@ -83,4 +84,3 @@ reinstall: uninstall install
 
 .DEFAULT_GOAL := help
 
-include make-git.mk
