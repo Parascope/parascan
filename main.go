@@ -44,16 +44,8 @@ const (
 	defaultPort        = 8081
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
-	apiBaseURL         = "https://app.sitedog.io" // Change to your actual API URL
-	Version = "v0.6.0"
-	exampleConfig      = `# Describe your project with a free key-value format, think simple.
-#
-# Random sample:
-registrar: gandi # registrar service
-dns: Route 53 # dns service
-hosting: https://carrd.com # hosting service
-mail: zoho # mail service
-`
+	apiBaseURL         = "https://app.sitedog.io"
+	Version = "v0.6.1"
 )
 
 func main() {
@@ -89,7 +81,7 @@ Commands:
   sniff   Detect your stack and create sitedog.yml
   serve   Start live server with preview
   push    Send configuration to cloud
-  render  Render HTML card
+  render  Render card(s) into HTML file
 
   logout  Remove authentication token
   version Show version
