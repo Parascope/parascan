@@ -152,10 +152,10 @@ We believe that Sitedog should be a part of your workflow, not just a tool to sh
 
 **🚀 Coming soon:**
 
-- [ ] VS Code extension
-- [ ] Chrome extension to augment GitLab/Github with sitedog cards
+- [x] [VS Code extension](https://github.com/sitedog-io/sitedog-vscode)
+- [x] [Chrome extension](https://github.com/sitedog-io/sitedog-chrome) to augment GitLab/Github with sitedog cards
 - [ ] GitLab CI example
-- [ ] GitHub Actions example
+- [x] [GitHub Actions example](https://github.com/sitedog-io/sitedog-cli/blob/main/.github/workflows/sitedog-cloud.yml)
 - [ ] Git hooks example
 
 ---
