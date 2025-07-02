@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version = "v0.6.1"
+	Version = "v0.6.2"
 )
 
 func main() {
@@ -947,7 +947,13 @@ func analyzeProjectDependencies(projectPath string, languages []string, stackDat
 						}
 						existing.Packages = mergedPackages
 					} else {
-						servicesMap[service.Name] = &service
+						// Create a copy to avoid pointer issues
+						serviceCopy := ServiceDetection{
+							Name:     service.Name,
+							Language: service.Language,
+							Packages: service.Packages,
+						}
+						servicesMap[service.Name] = &serviceCopy
 					}
 				}
 			}
@@ -1131,6 +1137,12 @@ func displayDetectorResults(results map[string]string) {
 	if serviceCount > 0 {
 		fmt.Printf("🔍 Detected %d service(s):\n", serviceCount)
 
+		// Load services data for display names
+		servicesData, err := loadServicesData()
+		if err != nil {
+			fmt.Printf("⚠️  Could not load services data: %v\n", err)
+		}
+
 		// Собираем и сортируем ключи (кроме repo)
 		var keys []string
 		for key := range results {
@@ -1143,7 +1155,20 @@ func displayDetectorResults(results map[string]string) {
 		// Выводим в отсортированном порядке
 		for _, key := range keys {
 			value := results[key]
-			displayName := getTechnologyDisplayName(key, value)
+			displayName := key
+
+			// Try to get proper display name from services data
+			if servicesData != nil {
+				if serviceData, exists := servicesData[key]; exists {
+					displayName = serviceData.Name
+				}
+			}
+
+			// Fallback to getTechnologyDisplayName for other technologies
+			if displayName == key {
+				displayName = getTechnologyDisplayName(key, value)
+			}
+
 			fmt.Printf("  🔗 %s → %s\n", displayName, value)
 		}
 	}

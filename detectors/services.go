@@ -58,7 +58,8 @@ func (s *ServicesDetector) Detect(projectPath string) (map[string]string, error)
 	for _, result := range projectResults {
 		for _, service := range result.Services {
 			if serviceData, exists := servicesData[service.Name]; exists {
-				results[serviceData.Name] = serviceData.URL
+				// Use service.Name (file key) as the key to avoid conflicts
+				results[service.Name] = serviceData.URL
 			}
 		}
 	}
