@@ -237,6 +237,16 @@ func TestSpecificServiceDetection(t *testing.T) {
 			}
 
 			if found != tt.shouldFind {
+				// Debug info for CI
+				t.Logf("DEBUG: Languages detected: %v", detectedLanguages)
+				t.Logf("DEBUG: Total results: %d", len(results))
+				for i, result := range results {
+					t.Logf("DEBUG: Result %d - Language: %s, Services: %d", i, result.Language, len(result.Services))
+					for j, service := range result.Services {
+						t.Logf("DEBUG:   Service %d: %s", j, service.Name)
+					}
+				}
+
 				if tt.shouldFind {
 					t.Errorf("Expected to find service %s in %s, but it was not detected", tt.service, tt.project)
 				} else {
