@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version = "v0.6.5"
+	Version            = "v0.6.5"
 )
 
 func main() {
@@ -638,7 +638,7 @@ type StackDependencyFiles struct {
 }
 
 type Language struct {
-	API             API                           `yaml:"api"`
+	API             API                       `yaml:"api"`
 	PackageManagers map[string]PackageManager `yaml:"package_managers"`
 }
 
@@ -652,15 +652,15 @@ type PackageManager struct {
 }
 
 type ServiceData struct {
-	Name   string                    `yaml:"name"`
-	URL    string                    `yaml:"url"`
+	Name   string              `yaml:"name"`
+	URL    string              `yaml:"url"`
 	Stacks map[string][]string `yaml:"stacks"`
 }
 
 type DetectionResult struct {
-	Language     string
-	Files        []string
-	Services     []ServiceDetection
+	Language string
+	Files    []string
+	Services []ServiceDetection
 }
 
 type ServiceDetection struct {
@@ -740,7 +740,7 @@ func handleSniff() {
 		return
 	}
 
-		// Create detectors in two phases:
+	// Create detectors in two phases:
 	// Phase 1: Simple detectors (don't need context)
 	var phase1Detectors []detectors.Detector
 
@@ -1405,7 +1405,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		}
 	}
 
-		if configExists {
+	if configExists {
 		if len(newData) == 0 {
 			fmt.Printf("\n✨ Config %s is up to date, no new services detected\n", configPath)
 			return
@@ -1418,7 +1418,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			return
 		}
 
-				lines := strings.Split(string(content), "\n")
+		lines := strings.Split(string(content), "\n")
 		var sections []string
 		var currentSection []string
 		var foundProjectSection = false
