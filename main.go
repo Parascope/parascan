@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version = "v0.6.4"
+	Version = "v0.6.5"
 )
 
 func main() {
@@ -90,17 +90,20 @@ Commands:
 Options for serve:
   --port PORT      Port to run server on (default: 8081)
 
+Options for sniff:
+  --verbose, -v    Show detailed detection information
+
 Options for render:
   --output PATH    Path to output HTML file (default: sitedog.html)
 
 Examples:
   sitedog sniff                          # detect stack and create sitedog.yml
   sitedog sniff ./my-project             # detect stack in directory and create config
+  sitedog sniff --verbose                # show detailed detection process
+  sitedog sniff -v ./my-project          # verbose analysis of specific directory
 
   sitedog serve --port 3030`)
 }
-
-
 
 func startServer(configFile *string, port int) (*http.Server, string) {
 	// Handlers
@@ -672,10 +675,23 @@ type PackageInfo struct {
 }
 
 func handleSniff() {
-	// Parse arguments - path can be positional argument
+	// Parse arguments - path can be positional argument and flags
 	var projectPath, configPath string
-	if len(os.Args) >= 3 {
-		argPath := os.Args[2]
+	var verbose bool
+
+	// Parse flags first
+	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
+	for i, arg := range args {
+		if arg == "--verbose" || arg == "-v" {
+			verbose = true
+			// Remove this flag from args
+			args = append(args[:i], args[i+1:]...)
+			break
+		}
+	}
+
+	if len(args) >= 1 {
+		argPath := args[0]
 		if strings.HasSuffix(argPath, ".yml") || strings.HasSuffix(argPath, ".yaml") {
 			// Argument is a config file path - analyze parent directory, save to specified file
 			configPath = argPath
@@ -800,7 +816,11 @@ func handleSniff() {
 	}
 
 	// Display results
-	displayDetectorResults(allResults)
+	if verbose {
+		displayDetailedResults(projectPath, detectedLanguages, stackData, servicesData, allResults)
+	} else {
+		displayDetectorResults(allResults)
+	}
 
 	// Create or update configuration
 	createConfigFromDetectorResults(configPath, allResults)
@@ -1583,4 +1603,106 @@ func (a *ServicesDependenciesAdapter) GetServicesData() map[string]*detectors.Se
 		}
 	}
 	return result
+}
+
+func displayDetailedResults(projectPath string, detectedLanguages []string, stackData *StackDependencyFiles, servicesData map[string]*ServiceData, allResults map[string]string) {
+	fmt.Printf("🔍 Detailed Detection Analysis\n")
+	fmt.Printf("═══════════════════════════════\n\n")
+
+	// Show detected languages
+	if len(detectedLanguages) > 0 {
+		fmt.Printf("📝 Languages detected: %s\n\n", strings.Join(detectedLanguages, ", "))
+
+		// Analyze project dependencies with detailed output
+		results := analyzeProjectDependencies(projectPath, detectedLanguages, stackData, servicesData)
+
+		for _, result := range results {
+			fmt.Printf("🔧 %s Analysis:\n", strings.Title(result.Language))
+			fmt.Printf("├── Files analyzed: %d\n", len(result.Files))
+
+			for _, file := range result.Files {
+				fmt.Printf("│   ├── %s\n", file)
+
+				// Show packages found in this file
+				fileServices := analyzeFile(file, result.Language, servicesData)
+				if len(fileServices) > 0 {
+					for _, service := range fileServices {
+						fmt.Printf("│   │   └── %s service detected\n", service.Name)
+						for _, pkg := range service.Packages {
+							fmt.Printf("│   │       ├── Package: %s\n", pkg.Name)
+						}
+					}
+				} else {
+					fmt.Printf("│   │   └── No service packages found\n")
+				}
+			}
+
+			fmt.Printf("│\n")
+			fmt.Printf("├── Services found: %d\n", len(result.Services))
+			for _, service := range result.Services {
+				if serviceData, exists := servicesData[service.Name]; exists {
+					fmt.Printf("│   ├── %s → %s\n", serviceData.Name, serviceData.URL)
+					fmt.Printf("│   │   └── Based on packages: %s\n", func() string {
+						var packages []string
+						for _, pkg := range service.Packages {
+							packages = append(packages, pkg.Name)
+						}
+						return strings.Join(packages, ", ")
+					}())
+				} else {
+					fmt.Printf("│   ├── %s (unknown service)\n", service.Name)
+				}
+			}
+			fmt.Printf("│\n")
+		}
+
+		fmt.Printf("└── Analysis complete\n\n")
+	} else {
+		fmt.Printf("❌ No languages detected in project\n\n")
+	}
+
+	// Show repository information
+	if repo, hasRepo := allResults["repo"]; hasRepo {
+		fmt.Printf("📁 Repository: %s\n\n", repo)
+	}
+
+	// Show final summary
+	serviceCount := len(allResults)
+	if _, hasRepo := allResults["repo"]; hasRepo {
+		serviceCount-- // Don't count repo as a service
+	}
+
+	if serviceCount > 0 {
+		fmt.Printf("✨ Summary: %d service(s) detected\n", serviceCount)
+		fmt.Printf("═══════════════════════════════════\n")
+
+		// Show services in sorted order
+		var keys []string
+		for key := range allResults {
+			if key != "repo" {
+				keys = append(keys, key)
+			}
+		}
+		sort.Strings(keys)
+
+		for _, key := range keys {
+			value := allResults[key]
+			displayName := key
+
+			// Try to get proper display name
+			if servicesData != nil {
+				if serviceData, exists := servicesData[key]; exists {
+					displayName = serviceData.Name
+				}
+			}
+
+			if displayName == key {
+				displayName = getTechnologyDisplayName(key, value)
+			}
+
+			fmt.Printf("  🔗 %s → %s\n", displayName, value)
+		}
+	} else {
+		fmt.Printf("❌ No services detected\n")
+	}
 }

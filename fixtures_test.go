@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"sort"
 	"testing"
@@ -213,39 +212,13 @@ func TestSpecificServiceDetection(t *testing.T) {
 		t.Fatalf("Failed to load services data: %v", err)
 	}
 
-	// Debug: Check if we loaded services data
-	t.Logf("DEBUG: Loaded %d services from embed files", len(servicesData))
-	if len(servicesData) == 0 {
-		t.Fatalf("ERROR: No services data loaded from embed files!")
-	}
+
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s_%s", tt.project, tt.service), func(t *testing.T) {
 			projectPath := filepath.Join("testdata", tt.project)
 
-			// Debug: Check if the service exists in loaded data
-			if serviceData, exists := servicesData[tt.service]; exists {
-				t.Logf("DEBUG: Service %s found in data with %d stacks", tt.service, len(serviceData.Stacks))
-			} else {
-				t.Logf("DEBUG: Service %s NOT found in loaded data!", tt.service)
-				t.Logf("DEBUG: Available services: %v", func() []string {
-					var keys []string
-					for k := range servicesData {
-						keys = append(keys, k)
-					}
-					return keys
-				}())
-			}
 
-			// Debug: Check if testdata file exists and has content
-			if files, err := filepath.Glob(filepath.Join(projectPath, "*")); err == nil {
-				t.Logf("DEBUG: Files in %s: %v", projectPath, files)
-				for _, file := range files {
-					if info, err := os.Stat(file); err == nil {
-						t.Logf("DEBUG: %s size: %d bytes", filepath.Base(file), info.Size())
-					}
-				}
-			}
 
 			detectedLanguages := detectProjectLanguages(projectPath, stackData)
 			if len(detectedLanguages) == 0 && tt.shouldFind {
@@ -254,13 +227,7 @@ func TestSpecificServiceDetection(t *testing.T) {
 
 			results := analyzeProjectDependencies(projectPath, detectedLanguages, stackData, servicesData)
 
-			// Debug: Show what files were analyzed
-			for _, result := range results {
-				t.Logf("DEBUG: Analyzed %d files for language %s", len(result.Files), result.Language)
-				for _, file := range result.Files {
-					t.Logf("DEBUG: - %s", file)
-				}
-			}
+
 
 			found := false
 			for _, result := range results {
@@ -275,17 +242,7 @@ func TestSpecificServiceDetection(t *testing.T) {
 				}
 			}
 
-			if found != tt.shouldFind {
-				// Debug info for CI
-				t.Logf("DEBUG: Languages detected: %v", detectedLanguages)
-				t.Logf("DEBUG: Total results: %d", len(results))
-				for i, result := range results {
-					t.Logf("DEBUG: Result %d - Language: %s, Services: %d", i, result.Language, len(result.Services))
-					for j, service := range result.Services {
-						t.Logf("DEBUG:   Service %d: %s", j, service.Name)
-					}
-				}
-
+						if found != tt.shouldFind {
 				if tt.shouldFind {
 					t.Errorf("Expected to find service %s in %s, but it was not detected", tt.service, tt.project)
 				} else {
