@@ -81,7 +81,6 @@ technologies:
     display_name: "Ruby Gem"
     files:
       - "*.gemspec"
-      - "lib/"
     fallback_url: "https://rubygems.org"
 
   nx-workspace:
