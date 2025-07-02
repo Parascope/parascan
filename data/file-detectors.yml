@@ -117,7 +117,6 @@ technologies:
     files:
       - "sanity.config.js"
       - "sanity.config.ts"
-      - "studio/"
     fallback_url: "https://sanity.io/manage"
 
   strapi:
@@ -169,8 +168,6 @@ technologies:
       - "k8s/*.yaml"
       - "kubernetes/*.yml"
       - "kubernetes/*.yaml"
-      - "deployment.yml"
-      - "deployment.yaml"
     fallback_url: "https://kubernetes.io"
 
   helm:
@@ -178,7 +175,6 @@ technologies:
     files:
       - "Chart.yaml"
       - "values.yaml"
-      - "charts/"
     fallback_url: "https://helm.sh"
 
   terraform:
