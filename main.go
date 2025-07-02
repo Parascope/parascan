@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version = "v0.6.3"
+	Version = "v0.6.4"
 )
 
 func main() {
@@ -1497,8 +1497,21 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			sections = append(sections, newSection)
 		}
 
-		// Join all sections back with empty lines between them
-		finalContent := strings.Join(sections, "\n\n") + "\n"
+		// Filter out empty sections and join with empty lines between them
+		var nonEmptySections []string
+		for _, section := range sections {
+			trimmed := strings.TrimSpace(section)
+			if trimmed != "" {
+				nonEmptySections = append(nonEmptySections, trimmed)
+			}
+		}
+
+		var finalContent string
+		if len(nonEmptySections) > 0 {
+			finalContent = strings.Join(nonEmptySections, "\n\n") + "\n"
+		} else {
+			finalContent = ""
+		}
 
 		if err := os.WriteFile(configPath, []byte(finalContent), 0644); err != nil {
 			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
@@ -1518,7 +1531,10 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			return
 		}
 
-		if err := os.WriteFile(configPath, yamlData, 0644); err != nil {
+		// Clean up any leading/trailing whitespace from YAML output
+		cleanedContent := strings.TrimSpace(string(yamlData)) + "\n"
+
+		if err := os.WriteFile(configPath, []byte(cleanedContent), 0644); err != nil {
 			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
 			return
 		}
