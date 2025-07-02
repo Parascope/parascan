@@ -1,0 +1,6 @@
+expected_services: []
+
+expected_languages:
+  - ruby
+
+description: "Basic Ruby on Rails project with no external service integrations"

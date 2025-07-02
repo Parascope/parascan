@@ -1,0 +1,18 @@
+expected_services:
+  # Ruby services
+  - stripe
+  - twilio
+  # Node.js services
+  - slack
+  - openai
+  - aws
+  # Python services
+  - anthropic
+  - google_maps
+
+expected_languages:
+  - ruby
+  - nodejs
+  - python
+
+description: "Multi-language project with Ruby backend, Node.js frontend, and Python data processing components"

@@ -1,0 +1,15 @@
+expected_services:
+  - anthropic
+  - aws
+  - firebase
+  - mailgun
+  - openai
+  - sendgrid
+  - slack
+  - stripe
+  - twilio
+
+expected_languages:
+  - nodejs
+
+description: "Node.js project with AI services, cloud services, email providers, and payment processing"

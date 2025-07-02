@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version = "v0.6.2"
+	Version = "v0.6.3"
 )
 
 func main() {
@@ -1015,10 +1015,141 @@ func analyzeFile(filePath, language string, servicesData map[string]*ServiceData
 	return detections
 }
 
-// Simple and efficient package search
+// Improved package search with proper parsing for different file types
 func isPackageInFile(content, fileName, packageName, language string) bool {
-	// Simply search for the package as is - names are unique
-	return strings.Contains(content, packageName)
+	baseFileName := filepath.Base(fileName)
+
+	switch {
+	case baseFileName == "package.json":
+		return isPackageInPackageJson(content, packageName)
+	case baseFileName == "Gemfile":
+		return isPackageInGemfile(content, packageName)
+	case strings.HasSuffix(baseFileName, "requirements.txt"):
+		return isPackageInRequirements(content, packageName)
+	case baseFileName == "yarn.lock":
+		return isPackageInYarnLock(content, packageName)
+	case strings.HasSuffix(baseFileName, ".gemspec"):
+		return isPackageInGemspec(content, packageName)
+	default:
+		// For other files, use line-based search with word boundaries
+		return isPackageInGenericFile(content, packageName)
+	}
+}
+
+// Parse package.json to find dependencies
+func isPackageInPackageJson(content, packageName string) bool {
+	// Parse JSON structure
+	var pkg struct {
+		Dependencies    map[string]interface{} `json:"dependencies"`
+		DevDependencies map[string]interface{} `json:"devDependencies"`
+	}
+
+	if err := json.Unmarshal([]byte(content), &pkg); err != nil {
+		// Fallback to simple search if JSON parsing fails
+		return strings.Contains(content, `"`+packageName+`"`)
+	}
+
+	// Check dependencies and devDependencies
+	if pkg.Dependencies != nil {
+		if _, exists := pkg.Dependencies[packageName]; exists {
+			return true
+		}
+	}
+	if pkg.DevDependencies != nil {
+		if _, exists := pkg.DevDependencies[packageName]; exists {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Parse Gemfile to find gems
+func isPackageInGemfile(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for gem declarations: gem 'package-name' or gem "package-name"
+		if strings.HasPrefix(line, "gem ") {
+			// Extract gem name from quotes
+			if strings.Contains(line, `'`+packageName+`'`) || strings.Contains(line, `"`+packageName+`"`) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Parse requirements.txt to find packages
+func isPackageInRequirements(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Skip comments and empty lines
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// Package name should be at the beginning of line (before version specifiers)
+		parts := strings.FieldsFunc(line, func(r rune) bool {
+			return r == '=' || r == '>' || r == '<' || r == '!' || r == ' ' || r == '~'
+		})
+		if len(parts) > 0 && parts[0] == packageName {
+			return true
+		}
+	}
+	return false
+}
+
+// Parse yarn.lock to find real dependencies (not in hashes)
+func isPackageInYarnLock(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for package declarations at the beginning of sections
+		if strings.Contains(line, "@") && strings.HasSuffix(line, ":") {
+			// Extract package name from yarn.lock entry like "package@version:"
+			parts := strings.Split(line, "@")
+			if len(parts) > 0 {
+				pkgName := strings.Trim(parts[0], `"'`)
+				if pkgName == packageName {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// Parse gemspec files
+func isPackageInGemspec(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for dependency declarations
+		if strings.Contains(line, "add_dependency") || strings.Contains(line, "add_development_dependency") {
+			if strings.Contains(line, `'`+packageName+`'`) || strings.Contains(line, `"`+packageName+`"`) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Generic file search with word boundaries
+func isPackageInGenericFile(content, packageName string) bool {
+	// Use word boundaries to avoid matching substrings
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		words := strings.Fields(line)
+		for _, word := range words {
+			// Clean word from common punctuation
+			cleanWord := strings.Trim(word, `"',:;()[]{}`)
+			if cleanWord == packageName {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Create sitedog.yml configuration based on detected technologies and services

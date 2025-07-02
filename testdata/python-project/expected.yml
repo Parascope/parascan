@@ -1,0 +1,17 @@
+expected_services:
+  - amplitude
+  - anthropic
+  - appsignal
+  - aws
+  - google_maps
+  - mailgun
+  - openai
+  - sendgrid
+  - slack
+  - stripe
+  - twilio
+
+expected_languages:
+  - python
+
+description: "Python Django project with comprehensive service integrations including AI, payments, cloud, and analytics"

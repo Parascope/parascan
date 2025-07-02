@@ -4,6 +4,7 @@ url: https://app.appsignal.com
 stacks:
   python:
   - appsignal
+  - django-appsignal
   nodejs:
   - "@appsignal/nodejs"
   - "@appsignal/nextjs"
