@@ -1,0 +1,8 @@
+---
+name: Open_router
+url: https://openrouter.ai
+stacks:
+  python:
+  - openrouter
+  nodejs:
+  - openrouter-sdk

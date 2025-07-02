@@ -1,0 +1,32 @@
+---
+name: Gitlab
+url: https://gitlab.com
+stacks:
+  python:
+  - django-gitlab
+  - python-gitlab
+  - gitlab-api
+  - libsaas_gitlab
+  nodejs:
+  - "@gitbeaker/rest"
+  - "@gitbeaker/node"
+  - gitlab-yaac
+  - node-gitlab-api
+  - "@gitbeaker/browser"
+  - backbone-gitlab
+  - gitlab
+  ruby:
+  - omniauth-gitlab
+  - gitlab_git
+  - gitlab
+  - gitlab-api
+  java:
+  - org.gitlab4j:gitlab4j-api
+  go:
+  - gitlab.com/gitlab-org/api/client-go
+  - github.com/xanzy/go-gitlab
+  php:
+  - m4tthumphrey/php-gitlab-api
+  dotnet:
+  - NGitLab
+  - GitLabApiClient

@@ -1,0 +1,16 @@
+---
+name: Sendpulse
+url: https://sendpulse.com
+stacks:
+  python:
+  - pysendpulse
+  nodejs:
+  - sendpulse-api
+  - sendpulse
+  ruby:
+  - sendpulse
+  php:
+  - sendpulse/rest-api
+  dotnet:
+  - Phnx.SendPulse
+  - SendPulse

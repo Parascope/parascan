@@ -1,0 +1,15 @@
+---
+name: Deepseek
+url: https://platform.deepseek.com
+stacks:
+  python:
+  - deepseek-sdk
+  nodejs:
+  - deepseek-client
+  - deepseek-api
+  ruby:
+  - deepseek-client
+  - deepseek-ruby
+  dotnet:
+  - DeepSeek.Net.SDK
+  - DeepSeek.Net

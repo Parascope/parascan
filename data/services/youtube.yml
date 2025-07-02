@@ -1,0 +1,25 @@
+---
+name: Youtube
+url: https://console.developers.google.com
+stacks:
+  python:
+  - google-api-python-client
+  - django-youtube
+  - youtube-data-api
+  nodejs:
+  - youtube-api
+  - youtube-search-api
+  - youtube-api-v3-search
+  - react-youtube
+  ruby:
+  - google-api-ruby-client
+  - youtube_it
+  java:
+  - com.google.apis:google-api-services-youtube
+  php:
+  - google/apiclient
+  - madcoda/php-youtube-api
+  dotnet:
+  - Google.Apis.YouTube.v3
+  - Google.Apis
+  - YoutubeExplode

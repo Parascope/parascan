@@ -1,0 +1,39 @@
+---
+name: Github
+url: https://github.com
+stacks:
+  python:
+  - PyGithub
+  - pygithub
+  - flask-github
+  - ghapi
+  - github3.py
+  nodejs:
+  - node-github
+  - "@octokit/rest"
+  - "@octokit/core"
+  - octokit
+  - github
+  - github-webhook-handler
+  - github-api
+  - "@octokit/webhooks"
+  ruby:
+  - github
+  - github_api
+  - omniauth-github
+  - octokit
+  java:
+  - org.kohsuke:github-api
+  - com.jcabi:jcabi-github
+  go:
+  - github.com/bradleyfalzon/ghinstallation
+  - github.com/octokit/go-octokit
+  - github.com/google/go-github
+  php:
+  - socialiteproviders/github
+  - knplabs/github-api
+  dotnet:
+  - GitHubSharp
+  - Octokit
+  - Microsoft.AspNet.WebHooks.Receivers.GitHub
+  - AspNet.Security.OAuth.GitHub

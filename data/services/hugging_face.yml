@@ -1,0 +1,24 @@
+---
+name: Hugging_face
+url: https://huggingface.co
+stacks:
+  python:
+  # - peft  # Not sure
+  # - gradio
+  # - trl
+  # - transformers
+  - huggingface_hub
+  - huggingface-hub
+  # - diffusers
+  nodejs:
+  - "@huggingface/hub"
+  - huggingface
+  - "@xenova/transformers"
+  - "@gradio/client"
+  - "@huggingface/inference"
+  ruby:
+  - hugging-face
+  java:
+  - dev.langchain4j:langchain4j-hugging-face
+  dotnet:
+  - HuggingFace.NET

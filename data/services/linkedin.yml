@@ -1,0 +1,30 @@
+---
+name: Linkedin
+url: https://linkedin.com
+stacks:
+  python:
+  - python-linkedin-v2
+  - linkedin
+  - python-linkedin
+  - linkedin-api
+  nodejs:
+  - linkedin-api-client
+  - linkedin-private-api
+  - react-linkedin-login-oauth2
+  - node-linkedin
+  - linkedin-js
+  ruby:
+  - omniauth-linkedin
+  - omniauth-linkedin-oauth2
+  - linkedin-oauth2
+  - linkedin
+  java:
+  - org.springframework.social:spring-social-linkedin
+  php:
+  - socialiteproviders/linkedin
+  - happyr/linkedin-api-client
+  dotnet:
+  - LinkedIn.NET
+  - LinkedIn.Net
+  - LinkedIn.Api
+  - AspNet.Security.OAuth.LinkedIn

@@ -1,0 +1,40 @@
+---
+name: Firebase
+url: https://console.firebase.google.com/
+stacks:
+  python:
+  - firebase
+  - pyrebase4
+  - firebase-admin
+  - pyrebase
+  - python-firebase
+  - django-firebase
+  nodejs:
+  - "@angular/fire"
+  - vue-firebase
+  - firebase
+  - react-firebase-hooks
+  - express-firebase-middleware
+  - firebase-admin
+  - firebase-functions
+  - reactfire
+  ruby:
+  - firebase-admin-sdk
+  - firebase
+  - firebase-ruby
+  java:
+  - com.google.firebase:firebase-admin
+  - com.firebaseui:firebase-ui
+  go:
+  - github.com/firebase/firebase-admin-go
+  - github.com/zabawaba99/firego
+  - firebase.google.com/go
+  php:
+  - google/cloud-firestore
+  - kreait/firebase-php
+  - plokko/firebase-php
+  dotnet:
+  - FirebaseAdmin
+  - Firebase.Database
+  - Firebase.Auth
+  - Google.Cloud.Firestore

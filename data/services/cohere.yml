@@ -1,0 +1,19 @@
+---
+name: Cohere
+url: https://cohere.ai
+stacks:
+  python:
+  - cohere
+  - llama-index-llms-cohere
+  nodejs:
+  - cohere-ai
+  - "@langchain/cohere"
+  ruby:
+  - cohere-ruby
+  java:
+  - com.cohere:cohere-java
+  - dev.langchain4j:langchain4j-cohere
+  go:
+  - github.com/cohere-ai/cohere-go
+  dotnet:
+  - Cohere.NET

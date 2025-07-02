@@ -1,0 +1,19 @@
+---
+name: Resend
+url: https://resend.com
+stacks:
+  python:
+  - resend
+  nodejs:
+  - resend
+  ruby:
+  - resend
+  java:
+  - com.resend:resend-java
+  go:
+  - github.com/resend/resend-go
+  php:
+  - resend/resend-laravel
+  - resend/resend-php
+  dotnet:
+  - Resend

@@ -1,0 +1,27 @@
+---
+name: unsplash
+url: https://unsplash.com/oauth/applications
+stacks:
+  python:
+  - pyunsplash
+  - python-unsplash
+  - django-unsplash
+  - unsplashpy
+  - unsplashapi
+  - unsplash-lib
+  nodejs:
+  - unsplash-api
+  - node-unsplash
+  - react-unsplash-wrapper
+  - unsplash-js
+  - gatsby-source-unsplash
+  ruby:
+  - unsplash
+  go:
+  - github.com/hbagdi/go-unsplash
+  php:
+  - unsplash/unsplash
+  dotnet:
+  - UnsplashSharp
+  - Unsplash.NET
+  - Unsplash

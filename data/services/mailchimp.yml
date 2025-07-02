@@ -1,0 +1,29 @@
+---
+name: Mailchimp
+url: https://mailchimp.com
+stacks:
+  python:
+  - django-mailchimp
+  - python-mailchimp
+  - mailchimp3
+  - mailchimp-transactional
+  - mailchimp-marketing
+  nodejs:
+  - "@mailchimp/mailchimp_marketing"
+  - mailchimp-api-v3
+  - "@mailchimp/mailchimp_transactional"
+  - gatsby-plugin-mailchimp
+  - react-mailchimp-subscribe
+  ruby:
+  - mailchimp-api
+  - mailchimp_api_v3
+  - gibbon
+  go:
+  - github.com/hanzoai/gochimp3
+  php:
+  - mailchimp/transactional
+  - mailchimp/marketing
+  - drewm/mailchimp-api
+  dotnet:
+  - MailChimp.NET
+  - MailChimp.Net

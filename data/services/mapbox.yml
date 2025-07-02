@@ -1,0 +1,21 @@
+---
+name: mapbox
+url: https://mapbox.com
+stacks:
+  python:
+  - django-mapbox-location-field
+  - mapbox
+  nodejs:
+  - "@mapbox/mapbox-sdk"
+  - "@mapbox/mapbox-gl-geocoder"
+  - react-map-gl
+  - mapbox
+  - mapbox-gl
+  - "@mapbox/mapbox-gl-directions"
+  ruby:
+  - mapbox-sdk
+  - mapbox-gl-rails
+  java:
+  - com.mapbox.mapboxsdk:mapbox-android-sdk
+  go:
+  - github.com/mapbox/mapbox-gl-native

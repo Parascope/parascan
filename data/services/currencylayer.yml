@@ -1,0 +1,11 @@
+---
+name: Currencylayer
+url: https://currencylayer.com
+stacks:
+  python:
+  - currencylayer
+  ruby:
+  - currencylayer
+  - currency_layer
+  php:
+  - orkhanahmadov/currencylayer

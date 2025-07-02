@@ -1,0 +1,22 @@
+---
+name: Zendesk
+url: https://admin.zendesk.com
+stacks:
+  python:
+  - zendesk
+  - zenpy
+  - zdesk
+  - django-zendesk
+  nodejs:
+  - node-zendesk
+  - zendesk-node-api
+  ruby:
+  - zendesk2
+  - zendesk_api
+  go:
+  - github.com/nukosuke/go-zendesk
+  php:
+  - zendesk/zendesk_api_client_php
+  dotnet:
+  - Zendesk.NET
+  - ZendeskApi_v2

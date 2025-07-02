@@ -1,0 +1,27 @@
+---
+name: Amplitude
+url: https://analytics.amplitude.com
+stacks:
+  python:
+  - django-amplitude
+  - amplitude-analytics
+  - pyamplitude
+  nodejs:
+  - "@amplitude/experiment-node-server"
+  - react-amplitude
+  - "@amplitude/analytics-node"
+  - amplitude-js
+  - "@amplitude/analytics-browser"
+  ruby:
+  - amplitude-api
+  java:
+  - com.amplitude:experiment-android-client
+  - com.amplitude:java-sdk
+  - com.amplitude:android-sdk
+  go:
+  - github.com/amplitude/analytics-go
+  php:
+  - zumba/amplitude-php
+  dotnet:
+  - AmplitudeSharp
+  - Amplitude.NET

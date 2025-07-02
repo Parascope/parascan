@@ -1,0 +1,25 @@
+---
+name: Trello
+url: https://trello.com/login/admin
+stacks:
+  python:
+  - python-trello
+  - trello
+  - py-trello
+  nodejs:
+  - trello
+  - trello-node-api
+  - node-trello
+  ruby:
+  - ruby-trello
+  java:
+  - com.taskadapter:trello-java-wrapper
+  go:
+  - github.com/adlio/trello
+  php:
+  - stevenmaguire/trello-php
+  - cdaguerre/php-trello-api
+  dotnet:
+  - TrelloNet
+  - Trello.NET
+  - TrelloDotNet

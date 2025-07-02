@@ -1,0 +1,27 @@
+---
+name: Newrelic
+url: https://newrelic.com
+stacks:
+  python:
+  - newrelic
+  - newrelic-python-agent
+  nodejs:
+  - "@newrelic/native-metrics"
+  - "@newrelic/koa"
+  - newrelic
+  - "@newrelic/apollo-server-plugin"
+  ruby:
+  - newrelic_rpm
+  java:
+  - com.newrelic.agent.java:newrelic-agent
+  - com.newrelic.telemetry:micrometer-registry-new-relic
+  - com.newrelic.agent.java:newrelic-api
+  - com.newrelic.telemetry:telemetry
+  go:
+  - github.com/newrelic/go-agent/v3/integrations/nrgin
+  - github.com/newrelic/go-agent
+  php:
+  - newrelic/monolog-enricher
+  - intouch/newrelic
+  dotnet:
+  - NewRelic.Agent

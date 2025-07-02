@@ -1,0 +1,36 @@
+---
+name: Paypal
+url: https://paypal.com
+stacks:
+  python:
+  - paypal-checkout-serversdk
+  - django-paypal
+  - paypalrestsdk
+  nodejs:
+  - paypal-node-sdk
+  - react-paypal-express-checkout
+  - "@paypal/checkout-server-sdk"
+  - paypal-rest-sdk
+  - "@paypal/payouts-sdk"
+  - paypal-checkout-components
+  - paypal-js
+  - paypal-express-checkout
+  ruby:
+  - paypal-sdk-rest
+  - paypal-express
+  - paypal-recurring
+  java:
+  - com.paypal.sdk:rest-api-sdk
+  - com.paypal.sdk:payouts-sdk
+  - com.paypal.sdk:checkout-sdk
+  go:
+  - github.com/plutov/paypal
+  php:
+  - srmklive/paypal
+  - paypal/paypal-checkout-sdk
+  - omnipay/paypal
+  - paypal/merchant-sdk-php
+  - paypal/rest-api-sdk-php
+  dotnet:
+  - PayPalCheckoutSdk
+  - PayPal

@@ -1,0 +1,26 @@
+---
+name: Bugsnag
+url: https://app.bugsnag.com
+stacks:
+  python:
+  - bugsnag
+  nodejs:
+  - "@bugsnag/react-native"
+  - bugsnag
+  - "@bugsnag/js"
+  - "@bugsnag/node"
+  - bugsnag-react
+  ruby:
+  - bugsnag
+  java:
+  - com.bugsnag:bugsnag-spring
+  - com.bugsnag:bugsnag
+  - com.bugsnag:bugsnag-android
+  go:
+  - github.com/bugsnag/bugsnag-go
+  php:
+  - bugsnag/bugsnag-laravel
+  - bugsnag/bugsnag-symfony
+  - bugsnag/bugsnag
+  dotnet:
+  - Bugsnag

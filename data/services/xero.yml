@@ -1,0 +1,23 @@
+---
+name: Xero
+url: https://developer.xero.com/app/manage
+stacks:
+  python:
+  - xerosdk
+  - pyxero
+  - xero-python
+  - django-xero
+  nodejs:
+  - xero-node
+  ruby:
+  - xero-ruby
+  - xeroizer
+  - xero_gateway
+  php:
+  - xeroapi/xero-php-oauth2
+  - calcinai/xero-php
+  dotnet:
+  - Xero.NetStandard.OAuth2
+  - XeroAPI.Net
+  - Xero-NetStandard
+  - Xero.Api

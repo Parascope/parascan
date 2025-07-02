@@ -1,0 +1,42 @@
+---
+name: Shopify
+url: https://shopify.com
+stacks:
+  python:
+  - shopify_python_api
+  - shopifyapi
+  - django-shopify-webhook
+  - flask-shopify
+  - django-shopify-auth
+  - shopify-python-api
+  nodejs:
+  - "@shopify/koa-shopify-webhooks"
+  - "@shopify/app-bridge-react"
+  - shopify-node-api
+  - "@shopify/storefront-api-client"
+  - "@shopify/koa-shopify-graphql-proxy"
+  - gatsby-source-shopify
+  - "@shopify/admin-api-client"
+  - "@shopify/shopify-api"
+  - "@shopify/app-bridge"
+  - "@shopify/koa-shopify-auth"
+  - shopify-api-node
+  - shopify-nextjs-toolbox
+  - next-shopify
+  ruby:
+  - shopify_api
+  - shopify-cli
+  - lucid_shopify
+  - omniauth-shopify-oauth2
+  - shopify_app
+  go:
+  - github.com/bold-commerce/go-shopify
+  - github.com/r0busta/go-shopify-graphql
+  php:
+  - slince/shopify-api-php
+  - donutdan4114/shopify
+  - osiset/laravel-shopify
+  - phpclassic/php-shopify
+  - oseintow/laravel-shopify
+  dotnet:
+  - ShopifySharp

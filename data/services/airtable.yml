@@ -1,0 +1,24 @@
+---
+name: Airtable
+url: https://airtable.com
+stacks:
+  python:
+  - airtable-python-wrapper
+  - pyairtable
+  nodejs:
+  - airtable
+  - airtable-node
+  - "@airtable/blocks-cli"
+  ruby:
+  - airrecord
+  - airtable
+  java:
+  - dev.fuxing:airtable-api
+  go:
+  - github.com/fabioberger/airtable-go
+  - github.com/mehanizm/airtable
+  php:
+  - sleiman/airtable-php
+  - armetiz/airtable-php
+  dotnet:
+  - AirtableApiClient

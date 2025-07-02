@@ -1,0 +1,28 @@
+---
+name: Intercom
+url: https://intercom.com
+stacks:
+  python:
+  - django-intercom
+  - intercom-python
+  - python-intercom
+  nodejs:
+  - react-intercom
+  - gatsby-plugin-intercom
+  - intercom-react-native
+  - "@intercom/messenger-js-sdk"
+  - intercom-client
+  - next-intercom
+  ruby:
+  - intercom-rails
+  - intercom
+  - intercom-ruby
+  java:
+  - io.intercom:intercom-java
+  go:
+  - github.com/intercom/intercom-go
+  php:
+  - intercom/intercom-php
+  dotnet:
+  - Intercom.Dotnet.Client
+  - intercom-dotnet

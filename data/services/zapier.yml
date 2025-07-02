@@ -1,0 +1,9 @@
+---
+name: Zapier
+url: https://developer.zapier.com/dashboard
+stacks:
+  nodejs:
+  - zapier-platform-core
+  - zapier-platform-cli
+  go:
+  - github.com/zapier/zapier-platform

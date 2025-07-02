@@ -1,0 +1,35 @@
+---
+name: DataDog
+url: https://app.datadoghq.com
+stacks:
+  python:
+  - ddtrace
+  - datadog-lambda
+  - django-datadog
+  - datadogpy
+  - datadog
+  - datadog-api-client
+  nodejs:
+  - dd-trace
+  - dd-trace-js
+  - connect-datadog
+  - datadog-metrics
+  - "@datadog/browser-logs"
+  - "@datadog/browser-rum"
+  - datadog-lambda-js
+  ruby:
+  - datadog-lambda
+  - ddtrace
+  - dd-trace-rb
+  - dogstatsd-ruby
+  java:
+  - com.datadoghq:java-dogstatsd-client
+  - com.datadoghq:dd-trace-api
+  - com.datadoghq:datadog-lambda-java
+  php:
+  - datadog/php-datadogstatsd
+  - datadog/dd-trace
+  dotnet:
+  - dd-trace-dotnet
+  - Datadog.Trace
+  - DogStatsD-CSharp-Client

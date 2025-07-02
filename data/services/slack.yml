@@ -1,0 +1,44 @@
+---
+name: Slack
+url: https://slack.com
+stacks:
+  python:
+  - flask-slack
+  - django-slack-oauth
+  - slack-sdk
+  - django-slack
+  - slackclient
+  - slack-bolt
+  - slackbot
+  nodejs:
+  - hubot-slack
+  - "@slack/client"
+  - "@slack/bolt"
+  - botkit
+  - "@slack/types"
+  - "@slack/web-api"
+  - "@slack/webhook"
+  - slack-node
+  ruby:
+  - slack-ruby-bot-server
+  - slack-ruby-bot
+  - slack-api
+  - slack-ruby-block-kit
+  - slack-notifier
+  - slack-ruby-client
+  java:
+  - com.slack.api:slack-api-model
+  - com.hubspot.slack:slack-client
+  - com.slack.api:slack-api-client
+  - com.slack.api:bolt
+  go:
+  - github.com/nlopes/slack
+  - github.com/slack-go/slack
+  php:
+  - cleentfaar/slack
+  - vluzrmos/slack-api
+  - jolicode/slack-php-api
+  dotnet:
+  - SlackNet
+  - SlackAPI
+  - Slack.Webhooks

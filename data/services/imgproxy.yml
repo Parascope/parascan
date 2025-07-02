@@ -1,0 +1,14 @@
+---
+name: Imgproxy
+url: https://imgproxy.net
+stacks:
+  python:
+  - imgproxy-python
+  - imgproxy
+  nodejs:
+  - imgproxy
+  ruby:
+  - imgproxy-rails
+  - imgproxy
+  dotnet:
+  - Imgproxy

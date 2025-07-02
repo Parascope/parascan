@@ -1,0 +1,34 @@
+---
+name: Auth0
+url: https://manage.auth0.com
+stacks:
+  python:
+  - auth0-python
+  - flask-auth0
+  - django-auth0
+  nodejs:
+  - "@auth0/nextjs-auth0"
+  - auth0
+  - "@auth0/auth0-react"
+  - "@auth0/auth0-angular"
+  - "@auth0/auth0-vue"
+  - auth0-react
+  - passport-auth0
+  - auth0-spa-js
+  ruby:
+  - auth0
+  - omniauth-auth0
+  java:
+  - com.auth0:java-jwt
+  - com.auth0:auth0
+  - com.auth0:auth0-spring-security-api
+  go:
+  - github.com/auth0/go-auth0
+  - github.com/auth0/go-jwt-middleware
+  php:
+  - auth0/auth0-php
+  - auth0/login
+  dotnet:
+  - Auth0.AspNetCore.Authentication
+  - Auth0.ManagementApi
+  - Auth0.AuthenticationApi

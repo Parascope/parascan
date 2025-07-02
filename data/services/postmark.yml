@@ -1,0 +1,23 @@
+---
+name: Postmark
+url: https://postmark.com
+stacks:
+  python:
+  - postmarker
+  - postmark
+  - django-postmark
+  - python-postmark
+  nodejs:
+  - postmark
+  ruby:
+  - postmark-rails
+  - postmark
+  java:
+  - com.wildbit.java:postmark
+  go:
+  - github.com/keighl/postmark
+  php:
+  - coconutcraig/laravel-postmark
+  - wildbit/postmark-php
+  dotnet:
+  - Postmark

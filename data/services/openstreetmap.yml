@@ -1,0 +1,25 @@
+---
+name: Openstreetmap
+url: https://openstreetmap.org
+stacks:
+  python:
+  - overpy
+  - overpass
+  - django-leaflet
+  - osmnx
+  - osmapi
+  - folium
+  nodejs:
+  - osm-read
+  - leaflet-routing-machine
+  ruby:
+  - osm
+  - overpass-api-ruby
+  java:
+  - de.westnordost:osmapi
+  go:
+  - github.com/omniscale/imposm3
+  - github.com/paulmach/osm
+  dotnet:
+  - OsmSharp.Core
+  - OsmSharp
