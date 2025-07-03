@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version            = "v0.6.5"
+	Version            = "v0.7.0"
 )
 
 func main() {
@@ -402,7 +402,7 @@ func validatePincode(apiURL, pincode string) (string, error) {
 
 func pushConfig(token, content, apiURL string) error {
 	reqBody, err := json.Marshal(map[string]string{
-		"content":   content,
+		"content": content,
 	})
 	if err != nil {
 		return fmt.Errorf("error creating request: %v", err)
