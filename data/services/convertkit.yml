@@ -1,0 +1,14 @@
+---
+name: Convertkit
+url: https://convertkit.com
+stacks:
+  python:
+  - convertkit-py
+  - convertkit
+  nodejs:
+  - convertkit
+  ruby:
+  - convertkit-ruby
+  - convertkit
+  php:
+  - convertkit/convertkitapi

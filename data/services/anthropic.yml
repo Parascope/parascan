@@ -1,0 +1,19 @@
+---
+name: Anthropic
+url: https://console.anthropic.com
+stacks:
+  python:
+  - anthropic
+  - langchain-anthropic
+  nodejs:
+  - "@anthropic-ai/sdk"
+  - "@langchain/anthropic"
+  - anthropic
+  ruby:
+  - anthropic
+  java:
+  - com.anthropic:anthropic-java
+  go:
+  - github.com/anthropics/anthropic-sdk-go
+  dotnet:
+  - Anthropic.SDK

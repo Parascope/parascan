@@ -1,0 +1,20 @@
+---
+name: Chargebee
+url: https://chargebee.com
+stacks:
+  python:
+  - chargebee
+  nodejs:
+  - chargebee-typescript
+  - chargebee
+  ruby:
+  - chargebee
+  java:
+  - com.chargebee:chargebee-java
+  go:
+  - github.com/chargebee/chargebee-go
+  php:
+  - chargebee/chargebee-php
+  dotnet:
+  - ChargeBee
+  - chargebee-dotnet

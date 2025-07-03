@@ -1,0 +1,28 @@
+---
+name: cloudinary
+url: https://cloudinary.com
+stacks:
+  python:
+  - cloudinary
+  - django-cloudinary-storage
+  nodejs:
+  - multer-storage-cloudinary
+  - "@cloudinary/vue"
+  - next-cloudinary
+  - cloudinary
+  - "@cloudinary/react"
+  - cloudinary-react
+  ruby:
+  - cloudinary
+  - attachinary
+  java:
+  - com.cloudinary:cloudinary-taglib
+  - com.cloudinary:cloudinary-http44
+  - com.cloudinary:cloudinary-android
+  go:
+  - github.com/cloudinary/cloudinary-go
+  php:
+  - jrm2k6/cloudder
+  - cloudinary/cloudinary_php
+  dotnet:
+  - CloudinaryDotNet

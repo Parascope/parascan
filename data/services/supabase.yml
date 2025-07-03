@@ -1,0 +1,26 @@
+---
+name: Supabase
+url: https://supabase.com
+stacks:
+  python:
+  - fastapi-supabase
+  - supabase
+  nodejs:
+  - "@supabase/auth-helpers-remix"
+  - "@supabase/storage-js"
+  - "@supabase/auth-helpers-react"
+  - "@supabase/supabase-js"
+  - "@supabase/auth-helpers-sveltekit"
+  - "@supabase/realtime-js"
+  - "@supabase/auth-helpers-nextjs"
+  - "@supabase/postgrest-js"
+  - "@supabase/gotrue-js"
+  go:
+  - github.com/supabase-community/gotrue-go
+  - github.com/supabase-community/postgrest-go
+  php:
+  - supabase/postgrest-php
+  - supabase/gotrue-php
+  - supabase/supabase-php
+  dotnet:
+  - Supabase

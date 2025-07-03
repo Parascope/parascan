@@ -1,0 +1,29 @@
+---
+name: Hubspot
+url: https://app.hubspot.com
+stacks:
+  python:
+  - hubspot3
+  - hubspot-api-client
+  nodejs:
+  - node-hubspot
+  - "@hubspot/api-client"
+  - hubspot
+  - hubspot-api
+  ruby:
+  - hubspot-ruby
+  - hubspot-api-ruby
+  - hubspot-api-client
+  java:
+  - com.github.etashkinov:hubspot-api
+  go:
+  - github.com/belong-inc/go-hubspot
+  - github.com/clarkmcc/go-hubspot
+  php:
+  - hubspot/hubspot-php
+  - ryanwinchester/hubspot-php
+  - fungku/hubspot-php
+  - hubspot/api-client
+  dotnet:
+  - HubSpot.NET
+  - HubSpotClient

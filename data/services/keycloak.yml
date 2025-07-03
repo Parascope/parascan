@@ -1,0 +1,35 @@
+---
+name: Keycloak
+url: https://www.keycloak.org
+stacks:
+  python:
+  - python-keycloak
+  - django-keycloak-auth
+  - keycloak-client
+  - flask-keycloak
+  - keycloak
+  nodejs:
+  - keycloak-connect
+  - "@react-keycloak/web"
+  - keycloak-nodejs-connect
+  - keycloak-js
+  - react-keycloak
+  - keycloak-admin
+  - "@keycloak/keycloak-admin-client"
+  ruby:
+  - keycloak-ruby
+  - keycloak-ruby-client
+  - omniauth-keycloak-openid
+  java:
+  - org.keycloak:keycloak-core
+  - org.keycloak:keycloak-spring-boot-starter
+  - org.keycloak:keycloak-adapter-core
+  - org.keycloak:keycloak-spring-security-adapter
+  go:
+  - github.com/keycloak/keycloak-gatekeeper
+  php:
+  - stevenmaguire/oauth2-keycloak
+  dotnet:
+  - Keycloak.AuthServices.Authentication
+  - Keycloak.Net
+  - Keycloak.AuthServices.Authorization

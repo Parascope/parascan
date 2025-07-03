@@ -1,0 +1,40 @@
+---
+name: Openai
+url: https://platform.openai.com
+stacks:
+  python:
+  - openai
+  - chatgpt-wrapper
+  nodejs:
+  - gpt-x
+  - "@dalenguyen/openai"
+  - "@azure/openai"
+  - gpt3
+  - openai-api
+  - gpts
+  - chatgpt
+  - openai-api-node
+  - openai
+  ruby:
+  - rails-openai
+  - openai-ruby
+  - openai
+  - chatgpt-ruby
+  - ruby-openai
+  java:
+  - io.github.flashvayne:chatgpt-spring-boot-starter
+  - com.openai:openai-java
+  - com.theokanning.openai-gpt3-java:service
+  go:
+  - github.com/ayush6624/go-chatgpt
+  - github.com/sashabaranov/go-openai
+  php:
+  - openai-php/client
+  - orhanerday/open-ai
+  - tectalic/openai
+  - openai-php/laravel
+  dotnet:
+  - OpenAI-DotNet
+  - OpenAI
+  - Betalgo.OpenAI
+  - Azure.AI.OpenAI

@@ -1,0 +1,30 @@
+---
+name: Twilio
+url: https://console.twilio.com
+stacks:
+  python:
+  - django-twilio
+  - flask-twilio
+  - twilio
+  nodejs:
+  - "@twilio/conversations"
+  - react-twilio-video
+  - twilio
+  - twilio-video
+  - "@twilio/voice-sdk"
+  ruby:
+  - twilio-ruby
+  - twilio-rails
+  java:
+  - com.twilio.sdk:twilio
+  - com.twilio.sdk:twilio-java-sdk
+  go:
+  - github.com/twilio/twilio-go
+  php:
+  - twilio/sdk
+  - laravel-notification-channels/twilio
+  - aloha/twilio
+  dotnet:
+  - Twilio.AspNet.Core
+  - Twilio
+  - Twilio.AspNet.Mvc

@@ -1,0 +1,12 @@
+---
+name: Substack
+url: https://substack.com
+stacks:
+  python:
+  - substack-api
+  - python-substack
+  - substack-python
+  nodejs:
+  - substack-sdk
+  - substack-api
+  - substack

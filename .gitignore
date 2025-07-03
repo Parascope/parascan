@@ -6,6 +6,6 @@ AGENTS.md
 sitedog.html
 .cursor
 sitedog
-data/services/*
 .DS_Store
 test-project/sitedog.yml
+testdata/*/sitedog.yml

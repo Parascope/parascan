@@ -1,0 +1,15 @@
+expected_services:
+  - appsignal
+  - amplitude
+  - aws
+  - github
+  - google_maps
+  - sendgrid
+  - slack
+  - stripe
+  - twilio
+
+expected_languages:
+  - ruby
+
+description: "Ruby project with multiple services including payment, cloud, monitoring, and communication services"

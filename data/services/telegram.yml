@@ -1,0 +1,40 @@
+---
+name: Telegram
+url: https://t.me/botfather
+stacks:
+  python:
+  - pytelegrambotapi
+  - pyTelegramBotAPI
+  - telegram
+  - django-telegram-bot
+  - telethon
+  - pyrogram
+  - aiogram
+  - python-telegram-bot
+  nodejs:
+  - telebot
+  - node-telegram-bot-api
+  - micro-bot
+  - telegram-bot-api
+  - telegram-typings
+  - telegraf
+  ruby:
+  - telegram-bot
+  - telegram-bot-ruby
+  java:
+  - org.telegram:telegrambots
+  - com.github.pengrad:java-telegram-bot-api
+  - org.telegram:telegrambotsextensions
+  go:
+  - github.com/tucnak/telebot
+  - github.com/go-telegram-bot-api/telegram-bot-api
+  - gopkg.in/tucnak/telebot.v2
+  php:
+  - longman/telegram-bot
+  - irazasyed/telegram-bot-sdk
+  - telegram-bot/api
+  - unreal4u/telegram-api
+  dotnet:
+  - TLSharp
+  - Telegram.Bot
+  - Telegram.Bot.Extensions.Polling

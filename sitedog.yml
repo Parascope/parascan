@@ -1,5 +1,5 @@
 sitedog-cli:
-  role: command line tool
+  What is it: CLI for Sitedog
   repo: https://github.com/sitedog-io/sitedog-cli
 
   gist: https://gist.github.com/qelphybox/fe278d331980a1ce09c3d946bbf0b83b
@@ -7,3 +7,5 @@ sitedog-cli:
   commands:
     install: curl -sL https://get.sitedog.io | sh
     uninstall: curl -sL https://get.sitedog.io/uninstall | sh
+    
+  GitHub Actions: https://github.com/sitedog-io/sitedog-cli/actions

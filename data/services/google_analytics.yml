@@ -1,0 +1,30 @@
+---
+name: Google Analytics
+url: https://analytics.google.com
+stacks:
+  python:
+  - googleanalytics
+  - django-google-analytics
+  - google-analytics-admin
+  - google-analytics-data
+  nodejs:
+  - ga-measurement-protocol
+  - "@google-analytics/admin"
+  - "@google-analytics/data"
+  - react-ga
+  - react-ga4
+  ruby:
+  - google-analytics-admin
+  - google-analytics-data
+  java:
+  - com.google.analytics:google-analytics-data
+  - com.brsanthu:google-analytics-java
+  - com.google.analytics:google-analytics-admin
+  php:
+  - google/analytics-data
+  - spatie/laravel-analytics
+  - theiconic/php-ga-measurement-protocol
+  - google/analytics-admin
+  - google/apiclient
+  dotnet:
+  - Google.Apis.Analytics.v3

@@ -1,0 +1,27 @@
+---
+name: Sendgrid
+url: https://sendgrid.com
+stacks:
+  python:
+  - flask-sendgrid
+  - django-sendgrid-v5
+  - sendgrid
+  nodejs:
+  - "@sendgrid/client"
+  - nodemailer-sendgrid-transport
+  - sendgrid
+  - "@sendgrid/mail"
+  ruby:
+  - sendgrid-ruby
+  - sendgrid-actionmailer
+  java:
+  - com.sendgrid:sendgrid-java
+  - com.sendgrid:smtpapi-java
+  go:
+  - github.com/sendgrid/sendgrid-go
+  php:
+  - symfony/sendgrid-mailer
+  - sendgrid/sendgrid
+  dotnet:
+  - SendGrid
+  - SendGrid.Extensions.DependencyInjection

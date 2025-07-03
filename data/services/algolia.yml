@@ -1,0 +1,32 @@
+---
+name: Algolia
+url: https://dashboard.algolia.com
+stacks:
+  python:
+  - django-algolia
+  - algoliasearch
+  - algoliasearch-django
+  nodejs:
+  - algoliasearch
+  - react-instantsearch
+  - "@algolia/client-search"
+  - instantsearch.js
+  - gatsby-plugin-algolia
+  - angular-instantsearch
+  - vue-instantsearch
+  ruby:
+  - algoliasearch
+  - algoliasearch-rails
+  java:
+  - com.algolia:algoliasearch-client-java
+  - com.algolia:algoliasearch-apache
+  - com.algolia:algoliasearch
+  go:
+  - github.com/algolia/algoliasearch-client-go
+  php:
+  - laravel/scout
+  - algolia/search-bundle
+  - algolia/scout-extended
+  - algolia/algoliasearch-client-php
+  dotnet:
+  - Algolia.Search

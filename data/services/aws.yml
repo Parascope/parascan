@@ -1,0 +1,74 @@
+---
+name: Aws
+url: https://console.aws.amazon.com
+stacks:
+  python:
+  - boto
+  - botocore
+  - boto3
+  - django-s3-storage
+  - aws-cdk-lib
+  - awscli
+  - aws-sam-cli
+  - chalice
+  nodejs:
+  - "@aws-sdk/client-cloudformation"
+  - serverless-offline
+  - "@aws-sdk/client-sqs"
+  - "@aws-sdk/client-sns"
+  - "@aws-sdk/client-s3"
+  - multer-s3
+  - "@aws-sdk/client-lambda"
+  - "@aws-sdk/client-rds"
+  - "@aws-sdk/client-ses"
+  - aws-lambda
+  - serverless
+  - "@aws-sdk/client-dynamodb"
+  - aws-sdk
+  - aws-amplify
+  - aws-appsync
+  - "@aws-sdk/client-ec2"
+  - react-aws-s3
+  ruby:
+  - aws-sdk-core
+  - aws-sdk-ec2
+  - aws-sdk-dynamodb
+  - carrierwave-aws
+  - aws-sdk-s3
+  - aws-sdk-rails
+  - aws-sdk-lambda
+  - aws-sdk
+  - aws-sdk-ruby
+  java:
+  - org.springframework.cloud:spring-cloud-aws-messaging
+  - software.amazon.awssdk:dynamodb
+  - com.amazonaws:aws-java-sdk-sqs
+  - com.amazonaws:aws-java-sdk-sns
+  - com.amazonaws:aws-java-sdk-dynamodb
+  - software.amazon.awssdk:lambda
+  - com.amazonaws:aws-java-sdk-s3
+  - com.amazonaws:aws-java-sdk-ec2
+  - org.springframework.cloud:spring-cloud-starter-aws
+  - software.amazon.awssdk:ec2
+  - com.amazonaws:aws-java-sdk-lambda
+  - org.springframework.cloud:spring-cloud-aws-context
+  - com.amazonaws:aws-java-sdk
+  - software.amazon.awssdk:s3
+  go:
+  - github.com/aws/aws-sdk-go
+  - github.com/aws/aws-lambda-go
+  - github.com/aws/aws-sdk-go-v2
+  - github.com/guregu/dynamo
+  - github.com/aws/aws-cdk-go
+  php:
+  - league/flysystem-aws-s3-v3
+  - aws/aws-sdk-php
+  - aws/aws-php-sns-message-validator
+  dotnet:
+  - AWSSDK.Core
+  - AWSSDK.SQS
+  - AWSSDK.Lambda
+  - Amazon.Lambda.AspNetCoreServer
+  - AWSSDK.DynamoDBv2
+  - AWSSDK.S3
+  - AWSSDK.EC2

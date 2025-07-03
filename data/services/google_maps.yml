@@ -1,0 +1,29 @@
+---
+name: Google Maps
+url: https://console.cloud.google.com/google/maps-apis/
+stacks:
+  python:
+  - django-google-maps
+  - googlemaps
+  - flask-googlemaps
+  nodejs:
+  - google-maps-react
+  - "@googlemaps/google-maps-services-js"
+  - angular-google-maps
+  - googlemaps
+  - react-google-maps
+  - vue-google-maps
+  - "@google/maps"
+  - "@react-google-maps/api"
+  ruby:
+  - google_maps_service
+  - googlemaps-services
+  - gmaps4rails
+  java:
+  - com.google.maps:google-maps-services
+  go:
+  - github.com/googlemaps/google-maps-services-go
+  dotnet:
+  - Google.Maps
+  - GoogleMaps.LocationServices
+  - GoogleMapsApi

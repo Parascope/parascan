@@ -1,0 +1,28 @@
+---
+name: Mailgun
+url: https://mailgun.com
+stacks:
+  python:
+  - mailgun
+  - mailgun2
+  - flask-mailgun
+  nodejs:
+  - mailgun-js
+  - node-mailgun
+  - mailgun.js
+  ruby:
+  - mailgun-ruby
+  - mailgun_rails
+  - mailgun
+  - rails-mailgun
+  java:
+  - com.mailgun:mailgun-java
+  - net.sargue:mailgun
+  go:
+  - github.com/mailgun/mailgun-go
+  php:
+  - mailgun/mailgun-php
+  - bogardo/mailgun
+  - symfony/mailgun-mailer
+  dotnet:
+  - Mailgun

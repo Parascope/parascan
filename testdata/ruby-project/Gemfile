@@ -1,0 +1,46 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '3.2.0'
+
+# Web framework
+gem 'rails', '~> 7.1.0'
+gem 'puma', '~> 6.0'
+
+# Database
+gem 'pg', '~> 1.5'
+
+# Payment processing
+gem 'stripe', '~> 10.0'
+
+# Communication services
+gem 'twilio-ruby', '~> 6.0'
+gem 'slack-ruby-client', '~> 2.0'
+
+# Cloud services
+gem 'aws-sdk-s3', '~> 1.100'
+gem 'aws-sdk-textract', '~> 1.0'
+
+# Monitoring and analytics
+gem 'appsignal', '~> 4.0'
+gem 'amplitude-api', '~> 0.1'
+
+# Git integration
+gem 'octokit', '~> 6.0'
+
+# Maps
+gem 'google_maps_service', '~> 0.4'
+
+# Email
+gem 'sendgrid-ruby', '~> 6.0'
+
+# Development
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+end
+
+group :development do
+  gem 'listen', '~> 3.8'
+  gem 'spring'
+end

@@ -1,0 +1,23 @@
+---
+name: Square
+url: https://squareup.com
+stacks:
+  python:
+  - squareup
+  nodejs:
+  - react-square-web-payments-sdk
+  - square
+  - square-connect
+  - "@square/web-sdk"
+  ruby:
+  - squareup
+  - square.rb
+  - square_connect
+  go:
+  - github.com/square/square-go-sdk
+  php:
+  - square/square
+  - square/connect
+  dotnet:
+  - Square
+  - Square.Connect

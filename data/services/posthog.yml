@@ -1,0 +1,19 @@
+---
+name: Posthog
+url: https://posthog.com
+stacks:
+  python:
+  - posthog
+  nodejs:
+  - posthog-js
+  - posthog
+  - posthog-node
+  ruby:
+  - posthog-ruby
+  go:
+  - github.com/posthog/posthog-go
+  php:
+  - posthog/posthog-php
+  dotnet:
+  - PostHog
+  - PostHog.Net

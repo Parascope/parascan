@@ -1,0 +1,22 @@
+---
+name: Honeybadger
+url: https://honeybadger.io
+stacks:
+  python:
+  - honeybadger
+  nodejs:
+  - "@honeybadger-io/js"
+  - honeybadger-js
+  - honeybadger
+  - "@honeybadger-io/webpack"
+  ruby:
+  - honeybadger
+  java:
+  - io.honeybadger:honeybadger-java
+  go:
+  - github.com/honeybadger-io/honeybadger-go
+  php:
+  - honeybadger-io/honeybadger-laravel
+  - honeybadger-io/honeybadger-php
+  dotnet:
+  - Honeybadger

@@ -1,0 +1,27 @@
+---
+name: openweathermap
+url: https://openweathermap.org
+stacks:
+  python:
+  - pyowm
+  - django-pyowm
+  - python-weather
+  - openweathermapy
+  nodejs:
+  - openweather-api-node
+  - openweathermap
+  - node-openweathermap
+  ruby:
+  - open-weather-ruby-client
+  - openweathermap
+  java:
+  - com.github.prominence:openweathermap-api
+  - net.aksingh:owm-japis
+  go:
+  - github.com/briandowns/openweathermap
+  php:
+  - cmfcmf/openweathermap-php-api
+  dotnet:
+  - OpenWeatherMapApi
+  - OpenWeatherMap.Net
+  - OpenWeatherMap.Standard

@@ -1,0 +1,29 @@
+---
+name: Stripe
+url: https://dashboard.stripe.com
+stacks:
+  python:
+  - django-stripe-payments
+  - dj-stripe
+  - stripe
+  nodejs:
+  - stripe-node
+  - "@stripe/stripe-js"
+  - "@stripe/react-stripe-js"
+  - react-stripe-elements
+  - stripe
+  ruby:
+  - stripe
+  - stripe_event
+  - stripe-rails
+  java:
+  - com.stripe:stripe-java
+  go:
+  - github.com/stripe/stripe-go
+  php:
+  - omnipay/stripe
+  - cartalyst/stripe
+  - stripe/stripe-php
+  dotnet:
+  - Stripe.net
+  - Stripe

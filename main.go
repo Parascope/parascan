@@ -44,16 +44,8 @@ const (
 	defaultPort        = 8081
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
-	apiBaseURL         = "https://app.sitedog.io" // Change to your actual API URL
-	Version = "v0.6.0"
-	exampleConfig      = `# Describe your project with a free key-value format, think simple.
-#
-# Random sample:
-registrar: gandi # registrar service
-dns: Route 53 # dns service
-hosting: https://carrd.com # hosting service
-mail: zoho # mail service
-`
+	apiBaseURL         = "https://app.sitedog.io"
+	Version            = "v0.6.5"
 )
 
 func main() {
@@ -89,7 +81,7 @@ Commands:
   sniff   Detect your stack and create sitedog.yml
   serve   Start live server with preview
   push    Send configuration to cloud
-  render  Render HTML card
+  render  Render card(s) into HTML file
 
   logout  Remove authentication token
   version Show version
@@ -98,17 +90,20 @@ Commands:
 Options for serve:
   --port PORT      Port to run server on (default: 8081)
 
+Options for sniff:
+  --verbose, -v    Show detailed detection information
+
 Options for render:
   --output PATH    Path to output HTML file (default: sitedog.html)
 
 Examples:
   sitedog sniff                          # detect stack and create sitedog.yml
   sitedog sniff ./my-project             # detect stack in directory and create config
+  sitedog sniff --verbose                # show detailed detection process
+  sitedog sniff -v ./my-project          # verbose analysis of specific directory
 
   sitedog serve --port 3030`)
 }
-
-
 
 func startServer(configFile *string, port int) (*http.Server, string) {
 	// Handlers
@@ -629,7 +624,7 @@ type StackDependencyFiles struct {
 }
 
 type Language struct {
-	API             API                           `yaml:"api"`
+	API             API                       `yaml:"api"`
 	PackageManagers map[string]PackageManager `yaml:"package_managers"`
 }
 
@@ -643,15 +638,15 @@ type PackageManager struct {
 }
 
 type ServiceData struct {
-	Name   string                    `yaml:"name"`
-	URL    string                    `yaml:"url"`
+	Name   string              `yaml:"name"`
+	URL    string              `yaml:"url"`
 	Stacks map[string][]string `yaml:"stacks"`
 }
 
 type DetectionResult struct {
-	Language     string
-	Files        []string
-	Services     []ServiceDetection
+	Language string
+	Files    []string
+	Services []ServiceDetection
 }
 
 type ServiceDetection struct {
@@ -666,10 +661,23 @@ type PackageInfo struct {
 }
 
 func handleSniff() {
-	// Parse arguments - path can be positional argument
+	// Parse arguments - path can be positional argument and flags
 	var projectPath, configPath string
-	if len(os.Args) >= 3 {
-		argPath := os.Args[2]
+	var verbose bool
+
+	// Parse flags first
+	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
+	for i, arg := range args {
+		if arg == "--verbose" || arg == "-v" {
+			verbose = true
+			// Remove this flag from args
+			args = append(args[:i], args[i+1:]...)
+			break
+		}
+	}
+
+	if len(args) >= 1 {
+		argPath := args[0]
 		if strings.HasSuffix(argPath, ".yml") || strings.HasSuffix(argPath, ".yaml") {
 			// Argument is a config file path - analyze parent directory, save to specified file
 			configPath = argPath
@@ -718,7 +726,7 @@ func handleSniff() {
 		return
 	}
 
-		// Create detectors in two phases:
+	// Create detectors in two phases:
 	// Phase 1: Simple detectors (don't need context)
 	var phase1Detectors []detectors.Detector
 
@@ -794,7 +802,11 @@ func handleSniff() {
 	}
 
 	// Display results
-	displayDetectorResults(allResults)
+	if verbose {
+		displayDetailedResults(projectPath, detectedLanguages, stackData, servicesData, allResults)
+	} else {
+		displayDetectorResults(allResults)
+	}
 
 	// Create or update configuration
 	createConfigFromDetectorResults(configPath, allResults)
@@ -941,7 +953,13 @@ func analyzeProjectDependencies(projectPath string, languages []string, stackDat
 						}
 						existing.Packages = mergedPackages
 					} else {
-						servicesMap[service.Name] = &service
+						// Create a copy to avoid pointer issues
+						serviceCopy := ServiceDetection{
+							Name:     service.Name,
+							Language: service.Language,
+							Packages: service.Packages,
+						}
+						servicesMap[service.Name] = &serviceCopy
 					}
 				}
 			}
@@ -1003,10 +1021,141 @@ func analyzeFile(filePath, language string, servicesData map[string]*ServiceData
 	return detections
 }
 
-// Simple and efficient package search
+// Improved package search with proper parsing for different file types
 func isPackageInFile(content, fileName, packageName, language string) bool {
-	// Simply search for the package as is - names are unique
-	return strings.Contains(content, packageName)
+	baseFileName := filepath.Base(fileName)
+
+	switch {
+	case baseFileName == "package.json":
+		return isPackageInPackageJson(content, packageName)
+	case baseFileName == "Gemfile":
+		return isPackageInGemfile(content, packageName)
+	case strings.HasSuffix(baseFileName, "requirements.txt"):
+		return isPackageInRequirements(content, packageName)
+	case baseFileName == "yarn.lock":
+		return isPackageInYarnLock(content, packageName)
+	case strings.HasSuffix(baseFileName, ".gemspec"):
+		return isPackageInGemspec(content, packageName)
+	default:
+		// For other files, use line-based search with word boundaries
+		return isPackageInGenericFile(content, packageName)
+	}
+}
+
+// Parse package.json to find dependencies
+func isPackageInPackageJson(content, packageName string) bool {
+	// Parse JSON structure
+	var pkg struct {
+		Dependencies    map[string]interface{} `json:"dependencies"`
+		DevDependencies map[string]interface{} `json:"devDependencies"`
+	}
+
+	if err := json.Unmarshal([]byte(content), &pkg); err != nil {
+		// Fallback to simple search if JSON parsing fails
+		return strings.Contains(content, `"`+packageName+`"`)
+	}
+
+	// Check dependencies and devDependencies
+	if pkg.Dependencies != nil {
+		if _, exists := pkg.Dependencies[packageName]; exists {
+			return true
+		}
+	}
+	if pkg.DevDependencies != nil {
+		if _, exists := pkg.DevDependencies[packageName]; exists {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Parse Gemfile to find gems
+func isPackageInGemfile(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for gem declarations: gem 'package-name' or gem "package-name"
+		if strings.HasPrefix(line, "gem ") {
+			// Extract gem name from quotes
+			if strings.Contains(line, `'`+packageName+`'`) || strings.Contains(line, `"`+packageName+`"`) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Parse requirements.txt to find packages
+func isPackageInRequirements(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Skip comments and empty lines
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// Package name should be at the beginning of line (before version specifiers)
+		parts := strings.FieldsFunc(line, func(r rune) bool {
+			return r == '=' || r == '>' || r == '<' || r == '!' || r == ' ' || r == '~'
+		})
+		if len(parts) > 0 && parts[0] == packageName {
+			return true
+		}
+	}
+	return false
+}
+
+// Parse yarn.lock to find real dependencies (not in hashes)
+func isPackageInYarnLock(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for package declarations at the beginning of sections
+		if strings.Contains(line, "@") && strings.HasSuffix(line, ":") {
+			// Extract package name from yarn.lock entry like "package@version:"
+			parts := strings.Split(line, "@")
+			if len(parts) > 0 {
+				pkgName := strings.Trim(parts[0], `"'`)
+				if pkgName == packageName {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// Parse gemspec files
+func isPackageInGemspec(content, packageName string) bool {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Look for dependency declarations
+		if strings.Contains(line, "add_dependency") || strings.Contains(line, "add_development_dependency") {
+			if strings.Contains(line, `'`+packageName+`'`) || strings.Contains(line, `"`+packageName+`"`) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Generic file search with word boundaries
+func isPackageInGenericFile(content, packageName string) bool {
+	// Use word boundaries to avoid matching substrings
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
+		words := strings.Fields(line)
+		for _, word := range words {
+			// Clean word from common punctuation
+			cleanWord := strings.Trim(word, `"',:;()[]{}`)
+			if cleanWord == packageName {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Create sitedog.yml configuration based on detected technologies and services
@@ -1125,6 +1274,12 @@ func displayDetectorResults(results map[string]string) {
 	if serviceCount > 0 {
 		fmt.Printf("🔍 Detected %d service(s):\n", serviceCount)
 
+		// Load services data for display names
+		servicesData, err := loadServicesData()
+		if err != nil {
+			fmt.Printf("⚠️  Could not load services data: %v\n", err)
+		}
+
 		// Собираем и сортируем ключи (кроме repo)
 		var keys []string
 		for key := range results {
@@ -1137,7 +1292,20 @@ func displayDetectorResults(results map[string]string) {
 		// Выводим в отсортированном порядке
 		for _, key := range keys {
 			value := results[key]
-			displayName := getTechnologyDisplayName(key, value)
+			displayName := key
+
+			// Try to get proper display name from services data
+			if servicesData != nil {
+				if serviceData, exists := servicesData[key]; exists {
+					displayName = serviceData.Name
+				}
+			}
+
+			// Fallback to getTechnologyDisplayName for other technologies
+			if displayName == key {
+				displayName = getTechnologyDisplayName(key, value)
+			}
+
 			fmt.Printf("  🔗 %s → %s\n", displayName, value)
 		}
 	}
@@ -1223,7 +1391,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 		}
 	}
 
-		if configExists {
+	if configExists {
 		if len(newData) == 0 {
 			fmt.Printf("\n✨ Config %s is up to date, no new services detected\n", configPath)
 			return
@@ -1236,7 +1404,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			return
 		}
 
-				lines := strings.Split(string(content), "\n")
+		lines := strings.Split(string(content), "\n")
 		var sections []string
 		var currentSection []string
 		var foundProjectSection = false
@@ -1335,8 +1503,21 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			sections = append(sections, newSection)
 		}
 
-		// Join all sections back with empty lines between them
-		finalContent := strings.Join(sections, "\n\n") + "\n"
+		// Filter out empty sections and join with empty lines between them
+		var nonEmptySections []string
+		for _, section := range sections {
+			trimmed := strings.TrimSpace(section)
+			if trimmed != "" {
+				nonEmptySections = append(nonEmptySections, trimmed)
+			}
+		}
+
+		var finalContent string
+		if len(nonEmptySections) > 0 {
+			finalContent = strings.Join(nonEmptySections, "\n\n") + "\n"
+		} else {
+			finalContent = ""
+		}
 
 		if err := os.WriteFile(configPath, []byte(finalContent), 0644); err != nil {
 			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
@@ -1356,7 +1537,10 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 			return
 		}
 
-		if err := os.WriteFile(configPath, yamlData, 0644); err != nil {
+		// Clean up any leading/trailing whitespace from YAML output
+		cleanedContent := strings.TrimSpace(string(yamlData)) + "\n"
+
+		if err := os.WriteFile(configPath, []byte(cleanedContent), 0644); err != nil {
 			fmt.Printf("⚠️  Could not write %s: %v\n", configPath, err)
 			return
 		}
@@ -1405,4 +1589,106 @@ func (a *ServicesDependenciesAdapter) GetServicesData() map[string]*detectors.Se
 		}
 	}
 	return result
+}
+
+func displayDetailedResults(projectPath string, detectedLanguages []string, stackData *StackDependencyFiles, servicesData map[string]*ServiceData, allResults map[string]string) {
+	fmt.Printf("🔍 Detailed Detection Analysis\n")
+	fmt.Printf("═══════════════════════════════\n\n")
+
+	// Show detected languages
+	if len(detectedLanguages) > 0 {
+		fmt.Printf("📝 Languages detected: %s\n\n", strings.Join(detectedLanguages, ", "))
+
+		// Analyze project dependencies with detailed output
+		results := analyzeProjectDependencies(projectPath, detectedLanguages, stackData, servicesData)
+
+		for _, result := range results {
+			fmt.Printf("🔧 %s Analysis:\n", strings.Title(result.Language))
+			fmt.Printf("├── Files analyzed: %d\n", len(result.Files))
+
+			for _, file := range result.Files {
+				fmt.Printf("│   ├── %s\n", file)
+
+				// Show packages found in this file
+				fileServices := analyzeFile(file, result.Language, servicesData)
+				if len(fileServices) > 0 {
+					for _, service := range fileServices {
+						fmt.Printf("│   │   └── %s service detected\n", service.Name)
+						for _, pkg := range service.Packages {
+							fmt.Printf("│   │       ├── Package: %s\n", pkg.Name)
+						}
+					}
+				} else {
+					fmt.Printf("│   │   └── No service packages found\n")
+				}
+			}
+
+			fmt.Printf("│\n")
+			fmt.Printf("├── Services found: %d\n", len(result.Services))
+			for _, service := range result.Services {
+				if serviceData, exists := servicesData[service.Name]; exists {
+					fmt.Printf("│   ├── %s → %s\n", serviceData.Name, serviceData.URL)
+					fmt.Printf("│   │   └── Based on packages: %s\n", func() string {
+						var packages []string
+						for _, pkg := range service.Packages {
+							packages = append(packages, pkg.Name)
+						}
+						return strings.Join(packages, ", ")
+					}())
+				} else {
+					fmt.Printf("│   ├── %s (unknown service)\n", service.Name)
+				}
+			}
+			fmt.Printf("│\n")
+		}
+
+		fmt.Printf("└── Analysis complete\n\n")
+	} else {
+		fmt.Printf("❌ No languages detected in project\n\n")
+	}
+
+	// Show repository information
+	if repo, hasRepo := allResults["repo"]; hasRepo {
+		fmt.Printf("📁 Repository: %s\n\n", repo)
+	}
+
+	// Show final summary
+	serviceCount := len(allResults)
+	if _, hasRepo := allResults["repo"]; hasRepo {
+		serviceCount-- // Don't count repo as a service
+	}
+
+	if serviceCount > 0 {
+		fmt.Printf("✨ Summary: %d service(s) detected\n", serviceCount)
+		fmt.Printf("═══════════════════════════════════\n")
+
+		// Show services in sorted order
+		var keys []string
+		for key := range allResults {
+			if key != "repo" {
+				keys = append(keys, key)
+			}
+		}
+		sort.Strings(keys)
+
+		for _, key := range keys {
+			value := allResults[key]
+			displayName := key
+
+			// Try to get proper display name
+			if servicesData != nil {
+				if serviceData, exists := servicesData[key]; exists {
+					displayName = serviceData.Name
+				}
+			}
+
+			if displayName == key {
+				displayName = getTechnologyDisplayName(key, value)
+			}
+
+			fmt.Printf("  🔗 %s → %s\n", displayName, value)
+		}
+	} else {
+		fmt.Printf("❌ No services detected\n")
+	}
 }

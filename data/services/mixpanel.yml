@@ -1,0 +1,29 @@
+---
+name: Mixpanel
+url: https://mixpanel.com
+stacks:
+  python:
+  - flask-mixpanel
+  - mixpanel
+  - mixpanel-py
+  nodejs:
+  - mixpanel
+  - mixpanel-node
+  - react-mixpanel
+  - mixpanel-browser
+  - vue-mixpanel
+  ruby:
+  - mixpanel-ruby
+  - mixpanel_client
+  java:
+  - com.mixpanel:mixpanel-java
+  go:
+  - github.com/dukex/mixpanel
+  - github.com/mixpanel/mixpanel-go
+  php:
+  - mixpanel/mixpanel-php
+  dotnet:
+  - MixpanelCSharp
+  - mixpanel-csharp
+  - Mixpanel
+  - Mixpanel.NET

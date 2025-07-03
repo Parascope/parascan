@@ -1,9 +1,10 @@
 ---
 name: Appsignal
-url: https://app.appsignal.com
+url: https://appsignal.com
 stacks:
   python:
   - appsignal
+  - django-appsignal
   nodejs:
   - "@appsignal/nodejs"
   - "@appsignal/nextjs"

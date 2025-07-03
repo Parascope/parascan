@@ -1,0 +1,10 @@
+{
+  "name": "multi-language-project",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "@slack/web-api": "^6.8.0",
+    "openai": "^4.0.0",
+    "aws-sdk": "^2.1400.0"
+  }
+}

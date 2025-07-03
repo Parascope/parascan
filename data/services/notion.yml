@@ -1,0 +1,27 @@
+---
+name: Notion
+url: https://notion.com
+stacks:
+  python:
+  - notion
+  - notion-sdk
+  - notion-sdk-py
+  - notion-client
+  - notion-py
+  - notionhq-client
+  nodejs:
+  - notion-api-js
+  - "@notionhq/client"
+  - notion-client
+  - react-notion
+  - react-notion-x
+  ruby:
+  - notion-ruby-client
+  - notion-sdk-ruby
+  go:
+  - github.com/dstotijn/go-notion
+  - github.com/jomei/notionapi
+  php:
+  - mariosimao/notion-sdk-php
+  dotnet:
+  - Notion.Net

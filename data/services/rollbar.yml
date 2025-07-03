@@ -1,0 +1,28 @@
+---
+name: Rollbar
+url: https://rollbar.com
+stacks:
+  python:
+  - rollbar
+  - flask-rollbar
+  nodejs:
+  - rollbar
+  - rollbar-sourcemap-webpack-plugin
+  - "@rollbar/react"
+  ruby:
+  - rollbar
+  - rollbar-gem
+  java:
+  - com.rollbar:rollbar-java
+  - com.rollbar:rollbar-logback
+  - com.rollbar:rollbar-spring-boot-webmvc
+  go:
+  - github.com/rollbar/rollbar-go
+  - github.com/stvp/rollbar
+  php:
+  - rollbar/rollbar
+  - jenssegers/rollbar
+  - rollbar/rollbar-laravel
+  dotnet:
+  - Rollbar.NetCore.AspNet
+  - Rollbar

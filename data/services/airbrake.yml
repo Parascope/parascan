@@ -1,0 +1,28 @@
+---
+name: Airbrake
+url: https://app.airbrake.io
+stacks:
+  python:
+  - airbrake
+  - pybrake
+  - django-airbrake
+  nodejs:
+  - "@airbrake/node"
+  - airbrake-js
+  - "@airbrake/browser"
+  - airbrake
+  ruby:
+  - airbrake
+  - airbrake-sinatra
+  - airbrake-ruby
+  java:
+  - io.airbrake:airbrake-java
+  - io.airbrake:javabrake
+  go:
+  - github.com/airbrake/gobrake
+  php:
+  - airbrake/phpbrake
+  - airbrake/airbrake-php
+  - kouz/laravel-airbrake
+  dotnet:
+  - Sharpbrake
