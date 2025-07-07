@@ -38,7 +38,7 @@ API_URL="https://api.github.com/repos/$REPO/releases/latest"
 ASSET_URL=$(curl -s "$API_URL" | grep 'browser_download_url' | grep "$BIN_NAME" | head -n1 | cut -d '"' -f 4)
 
 if [ -z "$ASSET_URL" ]; then
-    echo -e "${RED}Error: Could not find asset $BIN_NAME in the latest release${NC}"
+    echo "${RED}Error: Could not find asset $BIN_NAME in the latest release${NC}"
     exit 1
 fi
 
@@ -47,7 +47,7 @@ curl -sL "$ASSET_URL" -o "$INSTALL_DIR/sitedog"
 
 # Check if file was downloaded
 if [ ! -f "$INSTALL_DIR/sitedog" ]; then
-    echo -e "${RED}Error: Failed to download sitedog${NC}"
+    echo "${RED}Error: Failed to download sitedog${NC}"
     exit 1
 fi
 
@@ -60,7 +60,7 @@ TPL_NAME="demo.html.tpl"
 TPL_URL=$(curl -s "$API_URL" | grep 'browser_download_url' | grep "$TPL_NAME" | head -n1 | cut -d '"' -f 4)
 
 if [ -z "$TPL_URL" ]; then
-    echo -e "${RED}Error: Could not find asset $TPL_NAME in the latest release${NC}"
+    echo "${RED}Error: Could not find asset $TPL_NAME in the latest release${NC}"
     exit 1
 fi
 
@@ -69,29 +69,59 @@ curl -sL "$TPL_URL" -o "$TEMPLATES_DIR/demo.html.tpl"
 
 # Check if template was downloaded
 if [ ! -f "$TEMPLATES_DIR/demo.html.tpl" ]; then
-    echo -e "${RED}Error: Failed to download demo.html.tpl${NC}"
+    echo "${RED}Error: Failed to download demo.html.tpl${NC}"
     exit 1
 fi
 
 echo "Installed demo.html.tpl to $TEMPLATES_DIR/demo.html.tpl"
 
-# Try to create symlink in /usr/local/bin
-SYMLINK_OK=0
-if [ -w /usr/local/bin ]; then
-    ln -sf "$INSTALL_DIR/sitedog" /usr/local/bin/sitedog && SYMLINK_OK=1
-else
-    if sudo ln -sf "$INSTALL_DIR/sitedog" /usr/local/bin/sitedog; then
-        SYMLINK_OK=1
-    fi
-fi
+# Add to PATH if not already there
+RELOAD_MSG=""
+PROFILE=""
+# Determine shell profile to update
+case "$(basename "$SHELL")" in
+    zsh) PROFILE="$HOME/.zshrc" ;;
+    fish) PROFILE="$HOME/.config/fish/config.fish" ;;
+    *) PROFILE="$HOME/.bashrc" ;;
+esac
 
-if [ $SYMLINK_OK -eq 1 ]; then
-    echo "Symlink created: /usr/local/bin/sitedog -> $INSTALL_DIR/sitedog"
-else
-    echo "${YELLOW}No permissions to create symlink in /usr/local/bin.${NC}"
-    echo "Please add $INSTALL_DIR to your PATH. For example, add this line to your shell rc file (e.g., ~/.bashrc or ~/.zshrc):"
-    echo 'export PATH="$HOME/.sitedog/bin:$PATH"'
+if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
+    # Add to PATH in the appropriate profile
+    if [ "$SHELL" = "/usr/bin/fish" ] || [ "$SHELL" = "/bin/fish" ]; then
+        echo "set -gx PATH \"$INSTALL_DIR\" \$PATH" >> "$PROFILE"
+    else
+        echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$PROFILE"
+    fi
+    
+    RELOAD_MSG="${YELLOW} (source $PROFILE or restart your shell)${NC}"
 fi
 
 echo "${GREEN}SiteDog has been installed successfully!${NC}"
-echo "Try: sitedog help" 
+echo "Installed to: ${INSTALL_DIR}/sitedog${RELOAD_MSG}"
+
+# Ask user if they want to create symlink in /usr/local/bin
+echo ""
+printf "Create symlink in /usr/local/bin? (sudo) [y/N] "
+read -r REPLY
+
+if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ] || [ "$REPLY" = "yes" ] || [ "$REPLY" = "YES" ]; then
+    if sudo ln -sf "$INSTALL_DIR/sitedog" /usr/local/bin/sitedog; then
+        echo "${GREEN}🔗 Symlink created → /usr/local/bin/sitedog${NC}"
+    else
+        echo "${RED}Failed to create symlink${NC}"
+    fi
+else
+    echo "Global symlink skipped."
+fi
+
+echo ""
+echo "Try: sitedog help"
+
+# Show reload message if PATH was updated
+if [ -n "$PROFILE" ]; then
+    echo ""
+    echo "${YELLOW}If 'sitedog help' doesn't work, run:${NC}"
+    echo ""
+    echo "source $PROFILE"
+    echo ""
+fi 
