@@ -28,8 +28,7 @@ jobs:
       - name: Download sitedog CLI
         if: steps.check-config.outputs.config_exists == 'true'
         run: |
-          curl -sL https://get.sitedog.io | sh
-          echo "$HOME/.sitedog/bin" >> $GITHUB_PATH
+          curl -sL https://get.sitedog.io/ci | sh
 
       - name: Push config to cloud
         if: steps.check-config.outputs.config_exists == 'true'
@@ -43,7 +42,7 @@ jobs:
           fi
 
           echo "🚀 Pushing config to cloud..."
-          sitedog push --title "${{ github.repository }}"
+          ./sitedog push
 
       - name: Summary
         if: always()
