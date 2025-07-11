@@ -20,4 +20,20 @@ if [ -d "$HOME/.sitedog" ]; then
     echo "${GREEN}Removed $HOME/.sitedog directory${NC}"
 fi
 
+# Remove PATH entries from shell profiles
+for RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
+    if [ -f "$RC" ]; then
+        # Remove lines that add sitedog to PATH
+        case "$(uname)" in
+            Darwin*)
+                sed -i '' '/sitedog\/bin.*PATH/d' "$RC"
+                ;;
+            *)
+                sed -i '/sitedog\/bin.*PATH/d' "$RC"
+                ;;
+        esac
+        echo "${GREEN}Cleaned PATH from $RC${NC}"
+    fi
+done
+
 echo "${GREEN}SiteDog has been fully uninstalled!${NC}" 
