@@ -76,7 +76,7 @@ sitedog push                     # push current config (interactive auth)
 SITEDOG_TOKEN=xxx sitedog push   # push with token (for CI/CD)
 ```
 
-**For CI/CD:** Set `SITEDOG_TOKEN` environment variable to avoid interactive authentication. Get your token at [app.sitedog.io/auth_device](https://app.sitedog.io/auth_device).
+**For CI/CD:** Set `SITEDOG_TOKEN` environment variable to avoid interactive authentication. Get your token at [app.sitedog.io/tokens](https://app.sitedog.io/tokens).
 
 ### 4. Render html file with card locally
 ```sh
