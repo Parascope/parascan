@@ -20,7 +20,7 @@ push-gist:
 	rm -rf sitedog_gist
 	git clone git@gist.github.com:fe278d331980a1ce09c3d946bbf0b83b.git --depth 1 sitedog_gist
 	rm -rf sitedog_gist/*
-	cp demo.html.tpl scripts/install.sh scripts/uninstall.sh sitedog_gist/
+	cp demo.html.tpl scripts/install.sh scripts/ci-install.sh scripts/uninstall.sh sitedog_gist/
 	cd sitedog_gist && \
 	if git diff --quiet; then \
 		echo "No changes to deploy"; \
