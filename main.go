@@ -665,19 +665,21 @@ func handleSniff() {
 	var projectPath, configPath string
 	var verbose bool
 
-	// Parse flags first
+	// Parse flags first and collect non-flag arguments
 	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
-	for i, arg := range args {
+	var pathArgs []string
+	
+	for _, arg := range args {
 		if arg == "--verbose" || arg == "-v" {
 			verbose = true
-			// Remove this flag from args
-			args = append(args[:i], args[i+1:]...)
-			break
+		} else {
+			// This is a path argument, not a flag
+			pathArgs = append(pathArgs, arg)
 		}
 	}
 
-	if len(args) >= 1 {
-		argPath := args[0]
+	if len(pathArgs) >= 1 {
+		argPath := pathArgs[0]
 		if strings.HasSuffix(argPath, ".yml") || strings.HasSuffix(argPath, ".yaml") {
 			// Argument is a config file path - analyze parent directory, save to specified file
 			configPath = argPath

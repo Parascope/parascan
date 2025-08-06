@@ -9,3 +9,7 @@ sitedog-cli:
     uninstall: curl -sL https://get.sitedog.io/uninstall | sh
     
   GitHub Actions: https://github.com/sitedog-io/sitedog-cli/actions
+
+sitedog_cli:
+  GitHub Actions: https://github.com/SiteDog-io/sitedog-cli/actions
+  Repository: https://github.com/SiteDog-io/sitedog-cli
