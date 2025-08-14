@@ -45,7 +45,7 @@ const (
 	globalTemplatePath = ".sitedog/demo.html.tpl"
 	authFilePath       = ".sitedog/auth"
 	apiBaseURL         = "https://app.sitedog.io"
-	Version            = "v0.7.0"
+	Version            = "v0.7.1"
 )
 
 func main() {
@@ -662,11 +662,11 @@ type PackageInfo struct {
 
 // JSON response structures for rich format output
 type SniffResponse struct {
-	Status        string            `json:"status"`
-	ErrorDetails  string            `json:"error_details,omitempty"`
-	Lang          string            `json:"lang,omitempty"`
-	PackageManager string           `json:"package_manager,omitempty"`
-	Services      map[string]string `json:"services,omitempty"`
+	Status         string            `json:"status"`
+	ErrorDetails   string            `json:"error_details,omitempty"`
+	Lang           string            `json:"lang,omitempty"`
+	PackageManager string            `json:"package_manager,omitempty"`
+	Services       map[string]string `json:"services,omitempty"`
 }
 
 func handleSniff() {
@@ -679,7 +679,7 @@ func handleSniff() {
 	// Parse flags first and collect non-flag arguments
 	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
 	var pathArgs []string
-	
+
 	for i, arg := range args {
 		if arg == "--verbose" || arg == "-v" {
 			verbose = true
@@ -852,7 +852,7 @@ func handleSniff() {
 
 	// Show language detection for user feedback (keep existing behavior)
 	detectedLanguages := detectProjectLanguages(projectPath, stackData)
-	
+
 	// Only show language detection messages for yml-config format
 	if format == "yml-config" {
 		if len(detectedLanguages) > 0 {
@@ -1674,7 +1674,7 @@ func outputJSONFormat(allResults map[string]string, detectedLanguages []string, 
 	if len(detectedLanguages) > 0 {
 		primaryLang := detectedLanguages[0]
 		response.Lang = primaryLang
-		
+
 		// Determine package manager for the primary language
 		if langData, exists := stackData.Languages[primaryLang]; exists {
 			packageManager := determinePackageManager(primaryLang, langData)
@@ -1699,7 +1699,7 @@ func outputJSONFormat(allResults map[string]string, detectedLanguages []string, 
 		response.Services = nil
 		response.Lang = ""
 		response.PackageManager = ""
-		
+
 		// Try to marshal error response
 		errorJSON, _ := json.MarshalIndent(response, "", "  ")
 		fmt.Println(string(errorJSON))
