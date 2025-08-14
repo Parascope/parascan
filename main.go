@@ -660,19 +660,36 @@ type PackageInfo struct {
 	File string
 }
 
+// JSON response structures for rich format output
+type SniffResponse struct {
+	Status        string            `json:"status"`
+	ErrorDetails  string            `json:"error_details,omitempty"`
+	Lang          string            `json:"lang,omitempty"`
+	PackageManager string           `json:"package_manager,omitempty"`
+	Services      map[string]string `json:"services,omitempty"`
+}
+
 func handleSniff() {
 	// Parse arguments - path can be positional argument and flags
 	var projectPath, configPath string
 	var verbose bool
+	var format string = "yml-config" // default format
 
 	// Parse flags first and collect non-flag arguments
 	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
 	var pathArgs []string
 	
-	for _, arg := range args {
+	for i, arg := range args {
 		if arg == "--verbose" || arg == "-v" {
 			verbose = true
-		} else {
+		} else if arg == "--format" || arg == "-f" {
+			// Get format value from next argument
+			if i+1 < len(args) {
+				format = args[i+1]
+				// Skip the next argument in the next iteration
+				args[i+1] = ""
+			}
+		} else if arg != "" {
 			// This is a path argument, not a flag
 			pathArgs = append(pathArgs, arg)
 		}
@@ -697,34 +714,67 @@ func handleSniff() {
 		configPath = "sitedog.yml"
 	}
 
-	displayPath := projectPath
-	if projectPath == "." {
-		if cwd, err := os.Getwd(); err == nil {
-			displayPath = "current directory (" + filepath.Base(cwd) + ")"
-		} else {
-			displayPath = "current directory"
+	// Only show analysis message for yml-config format
+	if format == "yml-config" {
+		displayPath := projectPath
+		if projectPath == "." {
+			if cwd, err := os.Getwd(); err == nil {
+				displayPath = "current directory (" + filepath.Base(cwd) + ")"
+			} else {
+				displayPath = "current directory"
+			}
 		}
+		fmt.Printf("🔍 Analyzing project in %s...\n\n", displayPath)
 	}
-	fmt.Printf("🔍 Analyzing project in %s...\n\n", displayPath)
 
 	// Load stack dependency files data
 	stackData, err := loadStackDependencyFiles()
 	if err != nil {
-		fmt.Printf("❌ Error loading stack data: %v\n", err)
+		if format == "yml-config" {
+			fmt.Printf("❌ Error loading stack data: %v\n", err)
+		} else {
+			// For JSON format, output error in JSON
+			errorResponse := SniffResponse{
+				Status:       "fail",
+				ErrorDetails: fmt.Sprintf("Error loading stack data: %v", err),
+			}
+			jsonData, _ := json.MarshalIndent(errorResponse, "", "  ")
+			fmt.Println(string(jsonData))
+		}
 		return
 	}
 
 	// Load services data
 	servicesData, err := loadServicesData()
 	if err != nil {
-		fmt.Printf("❌ Error loading services data: %v\n", err)
+		if format == "yml-config" {
+			fmt.Printf("❌ Error loading services data: %v\n", err)
+		} else {
+			// For JSON format, output error in JSON
+			errorResponse := SniffResponse{
+				Status:       "fail",
+				ErrorDetails: fmt.Sprintf("Error loading services data: %v", err),
+			}
+			jsonData, _ := json.MarshalIndent(errorResponse, "", "  ")
+			fmt.Println(string(jsonData))
+		}
 		return
 	}
 
 	// Load file detectors data
 	fileDetectorsData, err := loadFileDetectorsData()
 	if err != nil {
-		fmt.Printf("❌ Error loading file detectors data: %v\n", err)
+		if format == "yml-config" {
+			fmt.Printf("❌ Error loading file detectors data: %v\n", err)
+		} else {
+			// For JSON format, output error in JSON
+			errorResponse := SniffResponse{
+				Status:       "fail",
+				ErrorDetails: fmt.Sprintf("Error loading file detectors data: %v", err),
+			}
+			jsonData, _ := json.MarshalIndent(errorResponse, "", "  ")
+			fmt.Println(string(jsonData))
+		}
 		return
 	}
 
@@ -763,7 +813,9 @@ func handleSniff() {
 	for _, detector := range phase1Detectors {
 		results, err := detector.Detect(ctx)
 		if err != nil {
-			fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			if format == "yml-config" {
+				fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			}
 			continue
 		}
 
@@ -778,7 +830,9 @@ func handleSniff() {
 	for _, detector := range phase2Detectors {
 		results, err := detector.Detect(ctx)
 		if err != nil {
-			fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			if format == "yml-config" {
+				fmt.Printf("❌ Error running %s detector: %v\n", detector.Name(), err)
+			}
 			continue
 		}
 
@@ -790,28 +844,42 @@ func handleSniff() {
 
 	// Show language detection for user feedback (keep existing behavior)
 	detectedLanguages := detectProjectLanguages(projectPath, stackData)
-	if len(detectedLanguages) > 0 {
-		if len(detectedLanguages) == 1 {
-			fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
-		} else {
-			var titleLanguages []string
-			for _, lang := range detectedLanguages {
-				titleLanguages = append(titleLanguages, strings.Title(lang))
+	
+	// Only show language detection messages for yml-config format
+	if format == "yml-config" {
+		if len(detectedLanguages) > 0 {
+			if len(detectedLanguages) == 1 {
+				fmt.Printf("👃 Smells like %s in here!\n", strings.Title(detectedLanguages[0]))
+			} else {
+				var titleLanguages []string
+				for _, lang := range detectedLanguages {
+					titleLanguages = append(titleLanguages, strings.Title(lang))
+				}
+				fmt.Printf("👃 Smells like a mix of %s!\n", strings.Join(titleLanguages, ", "))
 			}
-			fmt.Printf("👃 Smells like a mix of %s!\n", strings.Join(titleLanguages, ", "))
+			fmt.Println()
 		}
-		fmt.Println()
+
+		// Display results
+		if verbose {
+			displayDetailedResults(projectPath, detectedLanguages, stackData, servicesData, allResults)
+		} else {
+			displayDetectorResults(allResults)
+		}
 	}
 
-	// Display results
-	if verbose {
-		displayDetailedResults(projectPath, detectedLanguages, stackData, servicesData, allResults)
-	} else {
-		displayDetectorResults(allResults)
+	// Handle different output formats
+	switch format {
+	case "yml-config":
+		// Create or update configuration (default behavior)
+		createConfigFromDetectorResults(configPath, allResults)
+	case "json-stdout":
+		// Output rich JSON format to stdout
+		outputJSONFormat(allResults, detectedLanguages, stackData)
+	default:
+		fmt.Printf("❌ Unknown format: %s. Supported formats: yml-config, json-stdout\n", format)
+		os.Exit(1)
 	}
-
-	// Create or update configuration
-	createConfigFromDetectorResults(configPath, allResults)
 }
 
 func loadStackDependencyFiles() (*StackDependencyFiles, error) {
@@ -1580,6 +1648,81 @@ func (a *ServicesDependenciesAdapter) AnalyzeProjectDependencies(projectPath str
 	}
 
 	return detectorResults
+}
+
+// outputJSONFormat outputs detection results in rich JSON format
+func outputJSONFormat(allResults map[string]string, detectedLanguages []string, stackData *StackDependencyFiles) {
+	response := SniffResponse{
+		Status:   "ok",
+		Services: make(map[string]string),
+	}
+
+	// Determine primary language and package manager
+	if len(detectedLanguages) > 0 {
+		primaryLang := detectedLanguages[0]
+		response.Lang = primaryLang
+		
+		// Determine package manager for the primary language
+		if langData, exists := stackData.Languages[primaryLang]; exists {
+			packageManager := determinePackageManager(primaryLang, langData)
+			if packageManager != "" {
+				response.PackageManager = packageManager
+			}
+		}
+	}
+
+	// Add services to response (excluding repo)
+	for key, value := range allResults {
+		if key != "repo" {
+			response.Services[key] = value
+		}
+	}
+
+	// Output JSON to stdout
+	jsonData, err := json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		response.Status = "fail"
+		response.ErrorDetails = fmt.Sprintf("Error marshaling JSON: %v", err)
+		response.Services = nil
+		response.Lang = ""
+		response.PackageManager = ""
+		
+		// Try to marshal error response
+		errorJSON, _ := json.MarshalIndent(response, "", "  ")
+		fmt.Println(string(errorJSON))
+		return
+	}
+
+	fmt.Println(string(jsonData))
+}
+
+// determinePackageManager determines the primary package manager for a language
+func determinePackageManager(language string, langData Language) string {
+	// Priority order for package managers
+	priorityOrder := map[string][]string{
+		"python": {"pip", "poetry", "pipenv", "setuptools", "conda"},
+		"nodejs": {"npm", "yarn", "pnpm"},
+		"java":   {"maven", "gradle"},
+		"dotnet": {"nuget", "dotnet_core"},
+		"go":     {"go_modules", "dep"},
+		"php":    {"composer"},
+		"ruby":   {"bundler", "gemspec"},
+	}
+
+	if priorities, exists := priorityOrder[language]; exists {
+		for _, pm := range priorities {
+			if _, hasPM := langData.PackageManagers[pm]; hasPM {
+				return pm
+			}
+		}
+	}
+
+	// If no priority order defined, return the first available package manager
+	for pm := range langData.PackageManagers {
+		return pm
+	}
+
+	return ""
 }
 
 func (a *ServicesDependenciesAdapter) GetServicesData() map[string]*detectors.ServiceInfo {
