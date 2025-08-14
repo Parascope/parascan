@@ -674,6 +674,7 @@ func handleSniff() {
 	var projectPath, configPath string
 	var verbose bool
 	var format string = "yml-config" // default format
+	var customProjectName string
 
 	// Parse flags first and collect non-flag arguments
 	args := os.Args[2:] // Skip 'sitedog' and 'sniff'
@@ -686,6 +687,13 @@ func handleSniff() {
 			// Get format value from next argument
 			if i+1 < len(args) {
 				format = args[i+1]
+				// Skip the next argument in the next iteration
+				args[i+1] = ""
+			}
+		} else if arg == "--set-name" {
+			// Get custom project name from next argument
+			if i+1 < len(args) {
+				customProjectName = args[i+1]
 				// Skip the next argument in the next iteration
 				args[i+1] = ""
 			}
@@ -872,7 +880,7 @@ func handleSniff() {
 	switch format {
 	case "yml-config":
 		// Create or update configuration (default behavior)
-		createConfigFromDetectorResults(configPath, allResults)
+		createConfigFromDetectorResults(configPath, allResults, customProjectName)
 	case "json-stdout":
 		// Output rich JSON format to stdout
 		outputJSONFormat(allResults, detectedLanguages, stackData)
@@ -1405,13 +1413,18 @@ func getTechnologyDisplayName(techKey, url string) string {
 	return strings.Title(techKey)
 }
 
-func createConfigFromDetectorResults(configPath string, results map[string]string) {
-	// Get project name from directory
-	projectDir := filepath.Dir(configPath)
-	projectName := filepath.Base(projectDir)
-	if projectDir == "." {
-		if cwd, err := os.Getwd(); err == nil {
-			projectName = filepath.Base(cwd)
+func createConfigFromDetectorResults(configPath string, results map[string]string, customProjectName string) {
+	// Get project name - use custom name if provided, otherwise derive from directory
+	var projectName string
+	if customProjectName != "" {
+		projectName = customProjectName
+	} else {
+		projectDir := filepath.Dir(configPath)
+		projectName = filepath.Base(projectDir)
+		if projectDir == "." {
+			if cwd, err := os.Getwd(); err == nil {
+				projectName = filepath.Base(cwd)
+			}
 		}
 	}
 
