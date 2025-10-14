@@ -5,7 +5,7 @@ Org-level dependencies scanner for your repos. Automatically detects technologie
 ## 🚀 Installation
 
 ```sh
-curl -sL https://get.parascope.io | sh
+curl -fsSL instll.sh/Parascope/parascan | sh
 ```
 
 ## 📦 Usage
@@ -42,7 +42,7 @@ Examples:
 ## 🚀 Uninstallation
 
 ```sh
-curl -sL https://get.parascope.io/uninstall | sh
+curl -fsSL instll.sh/Parascope/parascan/uninstall | sh
 ```
 
 If you want to upgrade to the latest version, just uninstall and install again.

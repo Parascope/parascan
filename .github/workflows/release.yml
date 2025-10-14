@@ -28,8 +28,9 @@ jobs:
         with:
           files: |
             dist/*
-            scripts/install.sh
-            scripts/uninstall.sh
+            instll/install.sh
+            instll/uninstall.sh
+            instll/ci-install.sh
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +51,7 @@ jobs:
     steps:
       - name: Download and install
         run: |
-          curl -sL https://get.parascope.io/ci | sh
+          curl -fsSL instll.sh/Parascope/parascan/ci-install | sh
 
       - name: Check binary version
         run: |
