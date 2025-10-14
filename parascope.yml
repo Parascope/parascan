@@ -3,7 +3,7 @@ parascan:
   repo: https://github.com/Parascope/parascan
 
   commands:
-  install: curl -fsSL instll.sh/Parascope/parascan | sh
-  uninstall: curl -fsSL instll.sh/Parascope/parascan/uninstall | sh
+    install: curl -fsSL instll.sh/Parascope/parascan | sh
+    uninstall: curl -fsSL instll.sh/Parascope/parascan/uninstall | sh
 
   GitHub Actions: https://github.com/Parascope/parascan/actions
