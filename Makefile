@@ -3,7 +3,7 @@
 # Makes it possible to run "make instll user/repo" instead of "make instll ARGS=user/repo"
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
-.PHONY: push build-docker bump-version test release instll instll
+.PHONY: push build-docker bump-version test release instll
 
 
 instll:
