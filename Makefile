@@ -1,21 +1,13 @@
-include make-*.mk
-.PHONY: help push build-docker bump-version test release
+# include make-*.mk
 
-help:
-	@echo "Available commands:"
-	@echo "  help                - Show this help message"
-	@echo "  build               - Build all Go binaries for all platforms (in Docker, output to ./dist)"
-	@echo "  push                - Update files in gist (binaries from ./dist, install/uninstall scripts, etc.)"
-	@echo "  push!               - build + push"
-	@echo "  test                - Run all tests"
-	@echo "  bump-version        - Update version in main.go and create git tag"
-	@echo "  push-version        - Push changes and tags to remote repository"
-	@echo "  release             - Run tests, bump version, and push (Usage: make release v=x.y.z)"
-	@echo "  show-versions       - Display all git tags"
-	@echo "  install             - Install parascan"
-	@echo "  uninstall           - Uninstall parascan"
-	@echo "  reinstall           - Uninstall and install parascan"
+# Makes it possible to run "make instll user/repo" instead of "make instll ARGS=user/repo"
+ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
+.PHONY: push build-docker bump-version test release instll instll
+
+
+instll:
+	curl -fsSL instll.sh/$(ARGS) | bash
 
 build:
 	go build -o para main.go
@@ -98,5 +90,9 @@ uninstall:
 
 reinstall: uninstall install
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := instll
+
+# Catch-all rule to prevent Make from trying to find targets with argument names
+%:
+	@:
 
