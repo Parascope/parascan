@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"gopkg.in/yaml.v2"
-	"sitedog/detectors"
+	"parascan/detectors"
 )
 
 type ExpectedResults struct {

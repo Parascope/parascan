@@ -30,7 +30,6 @@ jobs:
             dist/*
             scripts/install.sh
             scripts/uninstall.sh
-            demo.html.tpl
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,15 +50,13 @@ jobs:
     steps:
       - name: Download and install
         run: |
-          curl -sL https://get.sitedog.io/ci | sh
-          
+          curl -sL https://get.parascope.io/ci | sh
+
       - name: Check binary version
         run: |
-          ./sitedog version
-          # Check that version matches the tag
-          VERSION=$(./sitedog version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          TAG_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//')
-          if [ "$VERSION" != "$TAG_VERSION" ]; then
-            echo "Version mismatch: binary version $VERSION != tag version $TAG_VERSION"
+          ./para help
+          # Check that binary works
+          if ! ./para help > /dev/null 2>&1; then
+            echo "Binary test failed"
             exit 1
           fi

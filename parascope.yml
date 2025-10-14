@@ -1,0 +1,9 @@
+parascan:
+  What is it: CLI for Parascan
+  repo: https://github.com/Parascope/parascan
+
+  commands:
+    install: curl -sL https://get.parascope.io | sh
+    uninstall: curl -sL https://get.parascope.io/uninstall | sh
+
+  GitHub Actions: https://github.com/Parascope/parascan/actions

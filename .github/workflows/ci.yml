@@ -33,14 +33,14 @@ jobs:
       - name: Check binary
         run: |
           # Verify that the binary was created and is executable
-          if [ -f "dist/sitedog-linux-amd64" ]; then
+          if [ -f "dist/para-linux-amd64" ]; then
             echo "✅ Binary created successfully"
-            chmod +x dist/sitedog-linux-amd64
+            chmod +x dist/para-linux-amd64
             echo "Testing binary functionality..."
-            ./dist/sitedog-linux-amd64 version
+            ./dist/para-linux-amd64 help
             echo "✅ Binary works correctly"
           else
-            echo "❌ Binary not found in dist/sitedog-linux-amd64"
+            echo "❌ Binary not found in dist/para-linux-amd64"
             ls -la dist/ || echo "dist directory not found"
             exit 1
           fi
@@ -52,4 +52,4 @@ jobs:
           echo "  ✅ Dependencies verified"
           echo "  ✅ Tests passed"
           echo "  ✅ Binary built successfully"
-          echo "  ✅ Binary is executable" 
+          echo "  ✅ Binary is executable"

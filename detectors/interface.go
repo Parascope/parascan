@@ -9,7 +9,7 @@ type DetectionContext struct {
 // Detector interface for all detection plugins
 type Detector interface {
 	Name() string
-	Detect(ctx *DetectionContext) (map[string]string, error) // key -> value for sitedog.yml
+	Detect(ctx *DetectionContext) (map[string]string, error) // key -> value for parascope.yml
 }
 
 // SimpleDetector is for detectors that don't need context

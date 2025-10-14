@@ -12,31 +12,18 @@ help:
 	@echo "  push-version        - Push changes and tags to remote repository"
 	@echo "  release             - Run tests, bump version, and push (Usage: make release v=x.y.z)"
 	@echo "  show-versions       - Display all git tags"
-	@echo "  install             - Install sitedog"
-	@echo "  uninstall           - Uninstall sitedog"
-	@echo "  reinstall           - Uninstall and install sitedog"
+	@echo "  install             - Install parascan"
+	@echo "  uninstall           - Uninstall parascan"
+	@echo "  reinstall           - Uninstall and install parascan"
 
-push-gist:
-	rm -rf sitedog_gist
-	git clone git@gist.github.com:fe278d331980a1ce09c3d946bbf0b83b.git --depth 1 sitedog_gist
-	rm -rf sitedog_gist/*
-	cp demo.html.tpl scripts/install.sh scripts/ci-install.sh scripts/uninstall.sh sitedog_gist/
-	cd sitedog_gist && \
-	if git diff --quiet; then \
-		echo "No changes to deploy"; \
-	else \
-		git add . && \
-		git commit -m "Update sitedog files" && \
-		git push; \
-	fi
 
 build:
-	go build -o sitedog main.go
+	go build -o para main.go
 
 docker-build:
 	docker run --rm -v $(PWD):/app -w /app golang:1.24-alpine sh -c "./scripts/build.sh"
 
-push!: build push-gist
+push!: build
 
 bump-version:
 	@if [ -z "$(v)" ]; then \
@@ -96,13 +83,13 @@ dev-install:
 	elif [ "$$ARCH" = "aarch64" ]; then \
 		ARCH="arm64"; \
 	fi; \
-	BINARY="sitedog-$$PLATFORM-$$ARCH"; \
-	echo "Installing $$BINARY as sitedog-dev..."; \
-	sudo ln -sf $(PWD)/dist/$$BINARY /usr/local/bin/sitedog-dev; \
+	BINARY="para-$$PLATFORM-$$ARCH"; \
+	echo "Installing $$BINARY as para-dev..."; \
+	sudo ln -sf $(PWD)/dist/$$BINARY /usr/local/bin/para-dev; \
 	echo "Development version installed successfully!"
 
 dev-uninstall:
-	sudo rm -f /usr/local/bin/sitedog-dev
+	sudo rm -f /usr/local/bin/para-dev
 
 dev-install!: dev-uninstall dev-install
 

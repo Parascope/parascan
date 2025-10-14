@@ -8,32 +8,32 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Remove symlink from /usr/local/bin
-if [ -L "/usr/local/bin/sitedog" ] || [ -f "/usr/local/bin/sitedog" ]; then
-    echo "Removing /usr/local/bin/sitedog (may require sudo)..."
-    sudo rm -f /usr/local/bin/sitedog
-    echo "${GREEN}Removed /usr/local/bin/sitedog${NC}"
+if [ -L "/usr/local/bin/para" ] || [ -f "/usr/local/bin/para" ]; then
+    echo "Removing /usr/local/bin/para (may require sudo)..."
+    sudo rm -f /usr/local/bin/para
+    echo "${GREEN}Removed /usr/local/bin/para${NC}"
 fi
 
-# Remove ~/.sitedog directory completely
-if [ -d "$HOME/.sitedog" ]; then
-    rm -rf "$HOME/.sitedog"
-    echo "${GREEN}Removed $HOME/.sitedog directory${NC}"
+# Remove ~/.parascope directory completely
+if [ -d "$HOME/.parascope" ]; then
+    rm -rf "$HOME/.parascope"
+    echo "${GREEN}Removed $HOME/.parascope directory${NC}"
 fi
 
 # Remove PATH entries from shell profiles
 for RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
     if [ -f "$RC" ]; then
-        # Remove lines that add sitedog to PATH
+        # Remove lines that add parascope to PATH
         case "$(uname)" in
             Darwin*)
-                sed -i '' '/sitedog\/bin.*PATH/d' "$RC"
+                sed -i '' '/parascope\/bin.*PATH/d' "$RC"
                 ;;
             *)
-                sed -i '/sitedog\/bin.*PATH/d' "$RC"
+                sed -i '/parascope\/bin.*PATH/d' "$RC"
                 ;;
         esac
         echo "${GREEN}Cleaned PATH from $RC${NC}"
     fi
 done
 
-echo "${GREEN}SiteDog has been fully uninstalled!${NC}" 
+echo "${GREEN}Parascan has been fully uninstalled!${NC}"

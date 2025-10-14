@@ -28,23 +28,23 @@ ARCH=$(uname -m)
 case "$ARCH" in
     x86_64|amd64) ARCH="amd64" ;;
     aarch64|arm64) ARCH="arm64" ;;
-    *) 
+    *)
         print_error "Unsupported architecture: $ARCH"
-        exit 1 
+        exit 1
         ;;
 esac
 
 case "$OS" in
-    linux) BIN_NAME="sitedog-linux-$ARCH" ;;
-    darwin) BIN_NAME="sitedog-darwin-$ARCH" ;;
-    *) 
+    linux) BIN_NAME="para-linux-$ARCH" ;;
+    darwin) BIN_NAME="para-darwin-$ARCH" ;;
+    *)
         print_error "Unsupported OS: $OS"
-        exit 1 
+        exit 1
         ;;
 esac
 
 # GitHub repository and API
-REPO="SiteDog-io/sitedog-cli"
+REPO="Parascope/parascan"
 API_URL="https://api.github.com/repos/$REPO/releases/latest"
 
 # Get latest release assets
@@ -63,38 +63,22 @@ if [ -z "$ASSET_URL" ]; then
     exit 1
 fi
 
-echo "Downloading sitedog $VERSION to current directory..."
+echo "Downloading parascan $VERSION to current directory..."
 
 # Download binary to current directory
-curl -sL "$ASSET_URL" -o "./sitedog"
+curl -sL "$ASSET_URL" -o "./para"
 
-if [ ! -f "./sitedog" ]; then
+if [ ! -f "./para" ]; then
     print_error "Failed to download binary"
     exit 1
 fi
 
-chmod +x "./sitedog"
-
-# Download template to current directory
-TPL_NAME="demo.html.tpl"
-TPL_URL=$(echo "$RELEASE_INFO" | grep 'browser_download_url' | grep "$TPL_NAME" | head -n1 | cut -d '"' -f 4)
-
-if [ -z "$TPL_URL" ]; then
-    print_error "Could not find template $TPL_NAME in the latest release"
-    exit 1
-fi
-
-curl -sL "$TPL_URL" -o "./demo.html.tpl"
-
-if [ ! -f "./demo.html.tpl" ]; then
-    print_error "Failed to download template"
-    exit 1
-fi
+chmod +x "./para"
 
 # Success message
 echo ""
-print_info "SiteDog successfully installed!"
+print_info "Parascan successfully installed!"
 echo ""
 echo "Usage:"
-echo "./sitedog push SITEDOG_TOKEN=your-sitedog-cli-token"
+echo "./para scan"
 echo ""

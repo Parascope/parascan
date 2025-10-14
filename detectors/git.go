@@ -53,6 +53,9 @@ func getGitOriginURL() (string, error) {
 }
 
 func convertToHTTPSURL(gitURL string) string {
+	// First sanitize the URL to remove credentials
+	gitURL = sanitizeGitURL(gitURL)
+
 	// Pattern for SSH URLs like git@github.com:user/repo.git
 	sshPattern := regexp.MustCompile(`^git@([^:]+):(.+)\.git$`)
 	if matches := sshPattern.FindStringSubmatch(gitURL); len(matches) == 3 {
@@ -71,4 +74,11 @@ func convertToHTTPSURL(gitURL string) string {
 	}
 
 	return gitURL
+}
+
+// sanitizeGitURL removes credentials from git URLs
+func sanitizeGitURL(gitURL string) string {
+	// Remove x-access-token:TOKEN@ from URL
+	re := regexp.MustCompile(`https://[^@]+@github\.com/`)
+	return re.ReplaceAllString(gitURL, "https://github.com/")
 }

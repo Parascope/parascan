@@ -4,7 +4,7 @@
 set -eu
 
 # Your CLI application name (without extension)
-APP_NAME="sitedog"
+APP_NAME="para"
 
 # Output directory for builds
 OUTPUT_DIR="dist"
