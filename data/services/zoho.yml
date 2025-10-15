@@ -1,0 +1,15 @@
+---
+name: Zoho
+url: https://zoho.com
+stacks:
+  python:
+  - zcrmsdk
+  nodejs:
+  - zoho-crm-node
+  - zcrmsdk
+  - zoho-subscriptions
+  - node-zoho
+  php:
+  - asciisd/zoho
+  dotnet:
+  - Zoho.Api
