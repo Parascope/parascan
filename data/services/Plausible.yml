@@ -1,0 +1,13 @@
+---
+name: Plausible
+url: https://Plausible.com
+stacks:
+  python:
+  - django-plausible
+  nodejs:
+  - vue-plausible
+  - nuxt-plausible
+  - next-plausible
+  - plausible-tracker
+  ruby:
+  - plausible_api
