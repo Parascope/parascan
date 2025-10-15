@@ -1,0 +1,54 @@
+---
+name: Pulumi
+url: https://pulumi.com
+stacks:
+  python:
+  - pulumi-alicloud
+  - pulumi-openstack
+  - pulumi-gcp-native
+  - pulumi-aws
+  - pulumi-azure
+  - pulumi-kubernetes
+  - pulumi-terraform
+  - pulumi-digitalocean
+  - pulumi-gcp
+  - pulumi-docker
+  - pulumi
+  - pulumi-azure-native
+  - pulumi-vsphere
+  nodejs:
+  - "@pulumi/vsphere"
+  - "@pulumi/azure"
+  - "@pulumi/digitalocean"
+  - "@pulumi/alicloud"
+  - "@pulumi/aws"
+  - "@pulumi/gcp"
+  - "@pulumi/terraform"
+  - "@pulumi/pulumi"
+  - "@pulumi/azure-native"
+  - "@pulumi/kubernetes"
+  - "@pulumi/docker"
+  - "@pulumi/gcp-native"
+  - "@pulumi/openstack"
+  java:
+  - com.pulumi:azure-native
+  - com.pulumi:gcp
+  - com.pulumi:pulumi
+  - com.pulumi:aws
+  - com.pulumi:docker
+  - com.pulumi:azure
+  - com.pulumi:kubernetes
+  go:
+  - github.com/pulumi/pulumi-azure
+  - github.com/pulumi/pulumi-aws
+  - github.com/pulumi/pulumi-kubernetes
+  - github.com/pulumi/pulumi
+  dotnet:
+  - Pulumi.Gcp
+  - Pulumi.Kubernetes
+  - Pulumi
+  - Pulumi.AzureNative
+  - Pulumi.Azure
+  - Pulumi.Docker
+  - Pulumi.Aws
+  - Pulumi.GoogleNative
