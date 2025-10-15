@@ -1,0 +1,6 @@
+---
+name: Test_service_2
+url: https://test_service_2.com
+stacks:
+  nodejs:
+  - testservice2
