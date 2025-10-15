@@ -1,0 +1,8 @@
+---
+name: Hotjar
+url: https://hotjar.com
+stacks:
+  nodejs:
+  - nuxt-hotjar
+  - react-hotjar
+  - gatsby-plugin-hotjar
