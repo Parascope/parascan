@@ -62,13 +62,6 @@ Examples:
   para scan -v ./my-project          # verbose analysis of specific directory`)
 }
 
-
-
-
-
-
-
-
 // Data structures for working with dependency analysis
 
 type StackDependencyFiles struct {
@@ -763,7 +756,6 @@ func displayResults(results []DetectionResult, servicesData map[string]*ServiceD
 		}
 	}
 }
-
 
 func displayDetectorResults(results map[string]string) {
 	if len(results) == 0 {
