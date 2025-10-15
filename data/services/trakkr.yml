@@ -1,0 +1,6 @@
+---
+name: Trakkr
+url: https://trakkr.com
+stacks:
+  python:
+  - trakkr
