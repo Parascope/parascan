@@ -1,0 +1,10 @@
+---
+name: Speakerdeck
+url: https://speakerdeck.com
+stacks:
+  nodejs:
+  - speakerdeck
+  - speakerdeck-api
+  go:
+  - github.com/luxas/speakerdeck-api
+  - github.com/moqada/speakerdeck
