@@ -90,7 +90,7 @@ make help
 
 ## 📖 About
 
-Parascan is a fork of [sitedog-cli](https://github.com/sitedog-io/sitedog-cli) focused on organization-level dependency scanning. It automatically detects and catalogs the technologies and services used across your repositories.
+Parascan automatically detects and catalogs the technologies and services used across your repositories.
 
 ### Key Features
 
