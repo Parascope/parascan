@@ -1,0 +1,26 @@
+---
+name: Reddit
+url: https://reddit.com
+stacks:
+  python:
+  - praw
+  - asyncpraw
+  nodejs:
+  - reddit-api-client
+  - snoowrap
+  - reddit-ts
+  - node-reddit
+  - reddit-wrap
+  - react-reddit
+  ruby:
+  - reddit-ruby
+  - redd
+  - snoo
+  java:
+  - com.github.jreddit:jreddit
+  go:
+  - github.com/jzelinskie/geddit
+  - github.com/vartanbeno/go-reddit
+  dotnet:
+  - Reddit.NET
+  - RedditSharp
