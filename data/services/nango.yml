@@ -1,0 +1,9 @@
+---
+name: Nango
+url: https://nango.com
+stacks:
+  python:
+  - nango
+  nodejs:
+  - "@nangohq/frontend"
+  - "@nangohq/node"
