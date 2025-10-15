@@ -26,7 +26,7 @@ var servicesFS embed.FS
 
 const (
 	defaultConfigPath = "./parascope.yml"
-	Version           = "v0.1.0"
+	Version           = "v0.8.0"
 )
 
 func main() {
