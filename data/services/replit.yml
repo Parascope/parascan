@@ -1,0 +1,14 @@
+---
+name: Replit
+url: https://replit.com
+stacks:
+  python:
+  - replit
+  - replitdb
+  nodejs:
+  - "@replit/crosis"
+  - replit-client
+  - "@replit/database"
+  - replit
+  go:
+  - github.com/replit/database-go
