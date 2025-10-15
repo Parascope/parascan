@@ -1,0 +1,19 @@
+---
+name: Cortex
+url: https://cortex.com
+stacks:
+  python:
+  - pycortex
+  - cortex-client
+  - cortex
+  - cortex-python
+  nodejs:
+  - cortex-api
+  - cortex
+  - node-cortex
+  ruby:
+  - cortex-client
+  go:
+  - github.com/cortexlabs/cortex
+  dotnet:
+  - Cortex.Net
