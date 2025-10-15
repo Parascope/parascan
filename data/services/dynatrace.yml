@@ -1,0 +1,14 @@
+---
+name: Dynatrace
+url: https://dynatrace.com
+stacks:
+  python:
+  - dt-cli
+  nodejs:
+  - "@dynatrace/oneagent-sdk"
+  - dynatrace
+  java:
+  - com.dynatrace.oneagent.sdk.java:oneagent-sdk
+  dotnet:
+  - Dynatrace.OneAgent.Sdk
+  - Dynatrace.OneAgent.SDK
