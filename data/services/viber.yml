@@ -1,0 +1,14 @@
+---
+name: Viber
+url: https://viber.com
+stacks:
+  python:
+  - viberbot
+  nodejs:
+  - viber-bot
+  go:
+  - github.com/mileusna/viber
+  php:
+  - bogdaan/viber-bot-php
+  dotnet:
+  - Viber.Bot
