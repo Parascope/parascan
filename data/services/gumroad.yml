@@ -1,0 +1,11 @@
+---
+name: Gumroad
+url: https://gumroad.com
+stacks:
+  nodejs:
+  - gumroad-api
+  - gumroad
+  ruby:
+  - gumroad-api
+  - gumroad-sdk
+  - gumroad
