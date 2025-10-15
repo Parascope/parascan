@@ -9,3 +9,4 @@ sitedog
 .DS_Store
 test-project/sitedog.yml
 testdata/*/sitedog.yml
+para

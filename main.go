@@ -763,9 +763,12 @@ func displayDetectorResults(results map[string]string) {
 		return
 	}
 
-	serviceCount := len(results)
+	// Filter out GitHub if it's only detected by repository URL
+	filteredResults := filterGitHubByRepository(results)
+
+	serviceCount := len(filteredResults)
 	// Don't count 'repo' as a service
-	if _, hasRepo := results["repo"]; hasRepo {
+	if _, hasRepo := filteredResults["repo"]; hasRepo {
 		serviceCount--
 	}
 
@@ -780,7 +783,7 @@ func displayDetectorResults(results map[string]string) {
 
 		// Собираем и сортируем ключи (кроме repo)
 		var keys []string
-		for key := range results {
+		for key := range filteredResults {
 			if key != "repo" {
 				keys = append(keys, key)
 			}
@@ -789,7 +792,7 @@ func displayDetectorResults(results map[string]string) {
 
 		// Выводим в отсортированном порядке
 		for _, key := range keys {
-			value := results[key]
+			value := filteredResults[key]
 			displayName := key
 
 			// Try to get proper display name from services data
@@ -808,9 +811,35 @@ func displayDetectorResults(results map[string]string) {
 		}
 	}
 
-	if repo, hasRepo := results["repo"]; hasRepo {
+	if repo, hasRepo := filteredResults["repo"]; hasRepo {
 		fmt.Printf("📁 Repository: %s\n", repo)
 	}
+}
+
+// filterGitHubByRepository removes GitHub from results if it's only detected by repository URL
+func filterGitHubByRepository(results map[string]string) map[string]string {
+	filtered := make(map[string]string)
+
+	// Check if we have a GitHub repository URL
+	repoURL, hasRepo := results["repo"]
+	hasGitHubRepo := hasRepo && strings.Contains(repoURL, "github.com")
+
+	// Check if GitHub is detected as a service
+	_, hasGitHubService := results["github"]
+
+	// If GitHub is detected as service but we only have repo URL, exclude it
+	if hasGitHubService && hasGitHubRepo && len(results) == 2 {
+		// Only repo and github detected - likely false positive
+		filtered["repo"] = results["repo"]
+		return filtered
+	}
+
+	// Otherwise, keep all results
+	for key, value := range results {
+		filtered[key] = value
+	}
+
+	return filtered
 }
 
 func getTechnologyDisplayName(techKey, url string) string {
@@ -834,6 +863,9 @@ func getTechnologyDisplayName(techKey, url string) string {
 }
 
 func createConfigFromDetectorResults(configPath string, results map[string]string, customProjectName string) {
+	// Filter out GitHub if it's only detected by repository URL
+	filteredResults := filterGitHubByRepository(results)
+
 	// Get project name - use custom name if provided, otherwise derive from directory
 	var projectName string
 	if customProjectName != "" {
@@ -873,7 +905,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 	newData := make(map[string]string)
 	newServices := 0
 
-	for key, value := range results {
+	for key, value := range filteredResults {
 		displayName := getTechnologyDisplayName(key, value)
 		if key == "repo" {
 			displayName = "Repository"
@@ -915,7 +947,7 @@ func createConfigFromDetectorResults(configPath string, results map[string]strin
 
 		// Get our repo URL for fallback search
 		ourRepoURL := ""
-		if repoURL, exists := results["repo"]; exists {
+		if repoURL, exists := filteredResults["repo"]; exists {
 			ourRepoURL = repoURL
 		}
 
