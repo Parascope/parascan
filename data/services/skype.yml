@@ -1,0 +1,8 @@
+---
+name: Skype
+url: https://skype.com
+stacks:
+  python:
+  - skpy
+  go:
+  - github.com/kelaresg/go-skypeapi
