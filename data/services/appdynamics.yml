@@ -1,0 +1,10 @@
+---
+name: Appdynamics
+url: https://appdynamics.com
+stacks:
+  python:
+  - appdynamics
+  nodejs:
+  - appdynamics
+  dotnet:
+  - AppDynamics.Agent
