@@ -1,0 +1,30 @@
+---
+name: Spotify
+url: https://spotify.com
+stacks:
+  python:
+  - spotify-token
+  - pyspotify
+  - spotipy
+  nodejs:
+  - "@spotify/web-api-ts-sdk"
+  - spotify-web-api-node
+  - react-spotify-player
+  - node-spotify-api
+  - react-spotify-auth
+  - spotify-web-api-js
+  ruby:
+  - omniauth-spotify
+  - rspotify
+  - spotify-ruby
+  java:
+  - se.michaelthelin.spotify:spotify-web-api-java
+  go:
+  - github.com/zmb3/spotify
+  - github.com/rapito/go-spotify
+  php:
+  - jwilsson/spotify-web-api-php
+  dotnet:
+  - SpotifyApi.NetCore
+  - Spotify.NetStandard.Sdk
+  - SpotifyAPI-NET
