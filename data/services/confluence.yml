@@ -1,0 +1,17 @@
+---
+name: Confluence
+url: https://confluence.com
+stacks:
+  python:
+  - atlassian-python-api
+  - confluence-py
+  - pyconfluence
+  nodejs:
+  - confluence-api
+  go:
+  - github.com/ctreminiom/go-atlassian
+  - github.com/virtomize/confluence-go-api
+  php:
+  - lesstif/confluence-rest-api
+  dotnet:
+  - Atlassian.SDK
