@@ -1,0 +1,26 @@
+---
+name: Jira
+url: https://jira.com
+stacks:
+  python:
+  - jira-python
+  - jira
+  - atlassian-python-api
+  - django-jira
+  nodejs:
+  - jira-connector
+  - jira-client
+  - jira.js
+  - node-jira-client
+  ruby:
+  - jira-ruby
+  - jiralicious
+  go:
+  - github.com/andygrunwald/go-jira
+  php:
+  - chobie/jira-api-restclient
+  - lesstif/php-jira-rest-client
+  dotnet:
+  - TechTalk.JiraRestClient
+  - Jira.SDK
+  - Atlassian.SDK
