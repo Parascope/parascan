@@ -1,0 +1,19 @@
+---
+name: Browserstack
+url: https://browserstack.com
+stacks:
+  python:
+  - pytest-browserstack
+  nodejs:
+  - browserstack-local
+  - nightwatch-browserstack
+  - wdio-browserstack-service
+  - browserstack
+  ruby:
+  - browserstack-local
+  java:
+  - com.browserstack:browserstack-local-java
+  php:
+  - browserstack/browserstack-local
+  dotnet:
+  - BrowserStackLocal
