@@ -1,0 +1,12 @@
+---
+name: Figma
+url: https://figma.com
+stacks:
+  nodejs:
+  - react-figma
+  - figma-js
+  - figma-api
+  - figma-transformer
+  - "@figma/rest-api-spec"
+  dotnet:
+  - FigmaSharp
