@@ -1,0 +1,11 @@
+---
+name: Sugarcrm
+url: https://sugarcrm.com
+stacks:
+  python:
+  - sugarcrm
+  - sugarcrm-python
+  ruby:
+  - sugarcrm
+  php:
+  - sugarcrm/rest-php-client
