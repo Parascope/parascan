@@ -1,0 +1,22 @@
+---
+name: Tesla
+url: https://tesla.com
+stacks:
+  python:
+  - tesla-api
+  - teslajsonpy
+  - teslapy
+  nodejs:
+  - tesla-api
+  - tesla
+  - teslajs
+  ruby:
+  - tesla_api
+  - tesla-api
+  go:
+  - github.com/bogosj/tesla
+  - github.com/jsgoecke/tesla
+  dotnet:
+  - TeslaApi
+  - Tesla.NET
+  - TeslaAPI
