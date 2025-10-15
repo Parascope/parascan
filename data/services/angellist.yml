@@ -1,0 +1,11 @@
+---
+name: Angellist
+url: https://angellist.com
+stacks:
+  python:
+  - python-angellist
+  nodejs:
+  - angellist
+  ruby:
+  - angellist_api
+  - omniauth-angellist
