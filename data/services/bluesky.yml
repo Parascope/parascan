@@ -1,0 +1,20 @@
+---
+name: Bluesky
+url: https://bluesky.com
+stacks:
+  python:
+  - bluesky
+  - bsky
+  - atproto
+  nodejs:
+  - bsky
+  - react-bluesky
+  - "@atproto/api"
+  ruby:
+  - atproto
+  go:
+  - github.com/bluesky-social/indigo
+  php:
+  - cjrasmussen/bluesky-api
+  dotnet:
+  - Bluesky.Net
