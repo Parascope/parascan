@@ -1,0 +1,8 @@
+---
+name: Rezka
+url: https://rezka.com
+stacks:
+  python:
+  - rezka-scraper
+  nodejs:
+  - rezka-api
