@@ -1,0 +1,13 @@
+---
+name: Attio
+url: https://attio.com
+stacks:
+  python:
+  - attio
+  nodejs:
+  - attio-js
+  - "@spotable/attio-sdk"
+  - attio
+  ruby:
+  - attio-ruby
+  - attio
