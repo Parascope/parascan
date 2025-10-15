@@ -1,0 +1,6 @@
+---
+name: Threads
+url: https://threads.com
+stacks:
+  dotnet:
+  - Threads.Api
