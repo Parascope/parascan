@@ -1,0 +1,37 @@
+---
+name: Okta
+url: https://okta.com
+stacks:
+  python:
+  - django-okta-auth
+  - okta
+  - okta-sdk-python
+  - okta-jwt-verifier
+  nodejs:
+  - "@okta/okta-vue"
+  - passport-okta-oauth
+  - okta
+  - "@okta/okta-sdk-nodejs"
+  - "@okta/okta-angular"
+  - "@okta/okta-react"
+  - "@okta/jwt-verifier"
+  ruby:
+  - omniauth-okta
+  java:
+  - com.okta.sdk:okta-sdk-api
+  - com.okta.jwt:okta-jwt-verifier
+  - com.okta.spring:okta-spring-security-oauth2
+  - com.okta.spring:okta-spring-boot-starter
+  - com.okta.sdk:okta-sdk-impl
+  go:
+  - github.com/okta/okta-jwt-verifier-golang
+  - github.com/okta/okta-sdk-golang
+  php:
+  - socialiteproviders/okta
+  - okta/jwt-verifier
+  - okta/sdk
+  dotnet:
+  - Okta.Auth.Sdk
+  - Okta.AspNetCore
+  - Okta.Sdk
+  - Okta.AspNet
