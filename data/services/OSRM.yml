@@ -1,0 +1,18 @@
+---
+name: Osrm
+url: https://OSRM.com
+stacks:
+  python:
+  - osrm-py
+  - osrm
+  - pyroutelib3
+  nodejs:
+  - "@project-osrm/osrm"
+  - node-osrm
+  - osrm
+  ruby:
+  - osrm
+  go:
+  - github.com/gojuno/go.osrm
+  dotnet:
+  - OSRM.Client
