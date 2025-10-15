@@ -1,0 +1,14 @@
+---
+name: Smartcar
+url: https://smartcar.com
+stacks:
+  python:
+  - smartcar
+  nodejs:
+  - smartcar
+  ruby:
+  - smartcar
+  java:
+  - com.smartcar.sdk:java-sdk
+  go:
+  - github.com/smartcar/go-sdk
