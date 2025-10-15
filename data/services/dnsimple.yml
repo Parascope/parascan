@@ -1,0 +1,19 @@
+---
+name: Dnsimple
+url: https://dnsimple.com
+stacks:
+  python:
+  - dnsimple
+  nodejs:
+  - dnsimple
+  ruby:
+  - dnsimple
+  - dnsimple-ruby
+  java:
+  - com.dnsimple:dnsimple-java
+  go:
+  - github.com/dnsimple/dnsimple-go
+  php:
+  - dnsimple/dnsimple
+  dotnet:
+  - DNSimple
