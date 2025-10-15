@@ -1,0 +1,27 @@
+---
+name: Whatsapp
+url: https://whatsapp.com
+stacks:
+  python:
+  - whatsapp-web.py
+  - twilio
+  - yowsup
+  nodejs:
+  - whatsapp-web.js
+  - venom-bot
+  - twilio
+  - "@adiwajshing/baileys"
+  - whatsapp-api-js
+  ruby:
+  - twilio-ruby
+  java:
+  - com.twilio.sdk:twilio
+  go:
+  - github.com/tulir/whatsmeow
+  php:
+  - netflie/whatsapp-cloud-api
+  - ultramsg/whatsapp-php-sdk
+  - twilio/sdk
+  dotnet:
+  - WhatsApp.NET
+  - Twilio
