@@ -1,0 +1,20 @@
+---
+name: Whois
+url: https://whois.com
+stacks:
+  python:
+  - whois-sdk
+  - python-whois
+  - whois
+  nodejs:
+  - node-whois
+  - whois
+  - whois-api
+  - whois-json
+  ruby:
+  - whois
+  go:
+  - github.com/domainr/whois
+  - github.com/likexian/whois
+  php:
+  - phpwhois/phpwhois
