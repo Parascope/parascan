@@ -1,0 +1,27 @@
+---
+name: Braintree
+url: https://braintreepayments.com
+stacks:
+  python:
+  - braintree
+  - django-braintree
+  - flask-braintree
+  nodejs:
+  - react-braintree-fields
+  - braintree-web
+  - braintree-web-drop-in
+  - braintree
+  ruby:
+  - braintree
+  - braintree-rails
+  java:
+  - com.braintreepayments.gateway:braintree-java
+  go:
+  - github.com/braintree-go/braintree-go
+  php:
+  - omnipay/braintree
+  - laravel/cashier-braintree
+  - braintree/braintree_php
+  dotnet:
+  - Braintree
+  - Braintree.Net
