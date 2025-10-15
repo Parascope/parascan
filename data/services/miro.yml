@@ -1,0 +1,7 @@
+---
+name: Miro
+url: https://miro.com
+stacks:
+  nodejs:
+  - miro-api
+  - "@mirohq/miro-api"
