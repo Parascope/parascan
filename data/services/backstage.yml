@@ -1,0 +1,17 @@
+---
+name: Backstage
+url: https://backstage.com
+stacks:
+  python:
+  - django-backstage
+  nodejs:
+  - "@backstage/plugin-scaffolder-backend-module-rails"
+  - backstage-client
+  - "@backstage/cli"
+  - "@backstage/plugin-catalog"
+  - "@backstage/plugin-scaffolder-backend-module-yeoman"
+  - "@backstage/backend-common"
+  - "@backstage/plugin-techdocs"
+  - "@backstage/core"
+  - "@backstage/plugin-scaffolder"
+  - "@backstage/plugin-kubernetes"
