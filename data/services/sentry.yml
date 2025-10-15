@@ -1,0 +1,40 @@
+---
+name: Sentry
+url: https://sentry.com
+stacks:
+  python:
+  - sentry-sdk
+  - flask-sentry
+  - raven
+  - django-sentry
+  nodejs:
+  - "@sentry/react"
+  - "@sentry/angular"
+  - "@sentry/nextjs"
+  - "@sentry/browser"
+  - "@sentry/vue"
+  - "@sentry/node"
+  - raven-js
+  ruby:
+  - sentry-ruby
+  - sentry-raven
+  - sentry-rails
+  java:
+  - io.sentry:sentry-logback
+  - io.sentry:sentry
+  - io.sentry:sentry-spring-boot-starter
+  - io.sentry:sentry-spring
+  - io.sentry:sentry-android
+  go:
+  - github.com/evalphobia/logrus_sentry
+  - github.com/getsentry/sentry-go
+  php:
+  - sentry/sentry-symfony
+  - sentry/sentry-laravel
+  - sentry/sentry
+  dotnet:
+  - Sentry.Extensions.Logging
+  - Sentry.Serilog
+  - Sentry.AspNetCore
+  - Sentry.EntityFramework
+  - Sentry
