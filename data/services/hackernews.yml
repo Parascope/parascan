@@ -1,0 +1,13 @@
+---
+name: Hackernews
+url: https://hackernews.com
+stacks:
+  python:
+  - hackernews
+  nodejs:
+  - hackernews
+  - hn-api
+  - hackernews-api
+  ruby:
+  - hn-api
+  - hackernews
